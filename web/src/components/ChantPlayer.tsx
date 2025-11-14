@@ -32,12 +32,22 @@ export default function ChantPlayer({
   autoPlay = false,
 }: ChantPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
-  const { setAudioElementRef } = useSessionStore()
+  const { setAudioElementRef, currentSession } = useSessionStore()
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(1)
   const [hasAttemptedAutoplay, setHasAttemptedAutoplay] = useState(false)
+
+  // Stop audio when session ends
+  useEffect(() => {
+    if (!currentSession && audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      setIsPlaying(false)
+      console.log('🛑 Audio stopped - no active session')
+    }
+  }, [currentSession])
 
   // Create a play function that can be called globally
   const playAudio = useCallback(async () => {

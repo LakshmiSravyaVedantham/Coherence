@@ -31,6 +31,7 @@ import CommunityFeed from './CommunityFeed'
 import AudioEqualizer from './AudioEqualizer'
 import AdvancedInsights from './AdvancedInsights'
 import AudioDebug from './AudioDebug'
+import P5Visualization from './P5Visualization'
 import { getChantById } from '@/lib/chants'
 
 export default function SessionTabs() {
@@ -179,16 +180,19 @@ export default function SessionTabs() {
               </>
             )}
 
-            {/* Chant Coherence Visualization */}
+            {/* Chant Coherence Visualization - P5.js Pattern */}
             <div className="bg-gray-800 rounded-lg p-6 border border-purple-500/30">
               <h3 className="text-lg font-semibold mb-4 text-center text-purple-300">
                 Collective Chant Coherence
               </h3>
-              <CoherenceVisualization
-                personalCoherence={personalCoherence}
-                groupCoherence={groupMetrics.averageCoherence}
-                coherencePhase={groupMetrics.coherencePhase}
-              />
+              <div className="relative w-full aspect-square max-w-2xl mx-auto">
+                <P5Visualization className="w-full h-full" />
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 text-center">
+                  <div className="text-sm text-purple-300 font-semibold mb-1">Chant Coherence Visualization</div>
+                  <div className="text-xs text-gray-400">Animated pattern reflects collective harmony</div>
+                </div>
+                <ParticipantIndicators />
+              </div>
             </div>
 
             {/* Group & Personal Metrics */}

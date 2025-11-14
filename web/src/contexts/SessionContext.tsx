@@ -126,10 +126,20 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }
 
   const leaveSession = () => {
+    // Stop audio playback when leaving session
+    const audioElement = useSessionStore.getState().audioElementRef
+    if (audioElement) {
+      audioElement.pause()
+      audioElement.currentTime = 0
+      console.log('🛑 Audio stopped - session left')
+    }
+    
     if (socket) {
       socket.emit('leave_session')
-      setCurrentSession(null)
     }
+    setCurrentSession(null)
+    localStorage.removeItem('sync_current_session')
+    localStorage.removeItem('sync_user_interacted') // Reset interaction flag
   }
 
   const updateCoherence = (coherence: number) => {
