@@ -30,6 +30,7 @@ import SessionSharing from './SessionSharing'
 import CommunityFeed from './CommunityFeed'
 import AudioEqualizer from './AudioEqualizer'
 import AdvancedInsights from './AdvancedInsights'
+import AudioDebug from './AudioDebug'
 import { getChantById } from '@/lib/chants'
 
 export default function SessionTabs() {
@@ -168,6 +169,13 @@ export default function SessionTabs() {
                 <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
                   <AudioEqualizer />
                 </div>
+
+                {/* Audio Debug (development only) */}
+                {process.env.NODE_ENV === 'development' && (
+                  <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <AudioDebug />
+                  </div>
+                )}
               </>
             )}
 
