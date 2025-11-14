@@ -1,0 +1,25 @@
+{
+  "name": "sync-coherence-platform",
+  "version": "0.1.0",
+  "description": "Collective Coherence Platform - Research-enabled group healing app",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:ml": "cd ml && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt",
+    "install:all": "npm install && cd backend && npm install && cd ../shared && npm install"
+  },
+  "keywords": [
+    "meditation",
+    "coherence",
+    "hrv",
+    "research",
+    "synchronization"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+

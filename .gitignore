@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+.Python
+
+# Build outputs
+dist/
+build/
+*.xcworkspace
+xcuserdata/
+DerivedData/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Database
+*.db
+*.sqlite
+
+# Audio assets (large files)
+audio/assets/*.mp3
+audio/assets/*.wav
+!audio/assets/.gitkeep
+
+# Temporary files
+tmp/
+temp/
+
