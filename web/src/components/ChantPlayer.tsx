@@ -263,25 +263,18 @@ export default function ChantPlayer({
         onError={(e) => {
           const chant = getChantById(audioTrackId)
           const audioPath = chant ? getChantAudioPath(chant) : `/audio/${audioTrackId}.mp3`
-          console.warn(`Audio file not found: ${audioPath}`)
-          // Try alternative formats if filename-based path fails
-          if (chant?.filename) {
-            const audio = e.currentTarget
-            const formats = ['wav', 'm4a', 'ogg']
-            let formatIndex = 0
-            
-            const tryNextFormat = () => {
-              if (formatIndex < formats.length) {
-                const baseName = chant.filename!.replace(/\.(mp3|wav|m4a|ogg)$/i, '')
-                audio.src = `/audio/${encodeURIComponent(baseName)}.${formats[formatIndex]}`
-                formatIndex++
-              } else {
-                console.error('No audio file found in any format')
-              }
-            }
-            
-            tryNextFormat()
-          }
+          console.error(`❌ Audio file error: ${audioPath}`, e)
+          console.error('Audio error details:', {
+            networkState: e.currentTarget.networkState,
+            readyState: e.currentTarget.readyState,
+            src: e.currentTarget.src
+          })
+        }}
+        onLoadStart={() => {
+          console.log('🔄 Audio load started')
+        }}
+        onLoadedData={() => {
+          console.log('✅ Audio data loaded')
         }}
       />
     </div>
