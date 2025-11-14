@@ -186,11 +186,26 @@ export default function ChantPlayer({
       setCurrentTime(0)
     }
 
-    const handleCanPlay = () => {
+    const handleCanPlay = async () => {
       console.log('✅ Audio can play, readyState:', audio.readyState)
       setAudioElementRef(audio)
       if (onAudioElementReady) {
         onAudioElementReady(audio)
+      }
+      
+      // Also try autoplay here if readyState is good enough
+      if (autoPlay && !hasAttemptedAutoplay && audio.readyState >= 3) {
+        const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
+        if (userInteracted) {
+          try {
+            await audio.play()
+            setIsPlaying(true)
+            setHasAttemptedAutoplay(true)
+            console.log('🎉 AUTOPLAY SUCCESSFUL (canplay)!')
+          } catch (e: any) {
+            console.log('⚠️ Autoplay from canplay blocked, will retry:', e.message)
+          }
+        }
       }
     }
 
@@ -200,7 +215,7 @@ export default function ChantPlayer({
       // Try autoplay when audio is fully ready
       if (autoPlay && !hasAttemptedAutoplay) {
         const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
-        console.log('🎯 Attempting autoplay - userInteracted:', userInteracted, 'readyState:', audio.readyState)
+        console.log('🎯 Attempting autoplay (canplaythrough) - userInteracted:', userInteracted, 'readyState:', audio.readyState)
         
         if (userInteracted) {
           setHasAttemptedAutoplay(true)
@@ -208,20 +223,23 @@ export default function ChantPlayer({
           try {
             await audio.play()
             setIsPlaying(true)
-            console.log('🎉 AUTOPLAY SUCCESSFUL!')
+            console.log('🎉 AUTOPLAY SUCCESSFUL (canplaythrough)!')
           } catch (e: any) {
-            console.error('❌ Autoplay failed:', e.name, e.message)
-            // If it fails, try again after a short delay
+            console.error('❌ Autoplay failed (canplaythrough):', e.name, e.message)
+            setHasAttemptedAutoplay(false) // Allow retry
+            // Retry after a short delay
             setTimeout(async () => {
               try {
-                await audio.play()
-                setIsPlaying(true)
-                console.log('🎉 AUTOPLAY SUCCESSFUL (retry)!')
+                if (audio.readyState >= 3) {
+                  await audio.play()
+                  setIsPlaying(true)
+                  setHasAttemptedAutoplay(true)
+                  console.log('🎉 AUTOPLAY SUCCESSFUL (canplaythrough retry)!')
+                }
               } catch (e2: any) {
                 console.error('❌ Autoplay retry also failed:', e2.name, e2.message)
-                setHasAttemptedAutoplay(false) // Allow manual play
               }
-            }, 200)
+            }, 300)
           }
         } else {
           console.log('⚠️ User has not interacted yet - autoplay will be blocked')
@@ -436,6 +454,7 @@ export default function ChantPlayer({
         ref={audioRef}
         preload="auto"
         playsInline
+        autoPlay={false}
         onError={(e) => {
           const chant = getChantById(audioTrackId)
           const audioPath = chant ? getChantAudioPath(chant) : `/audio/${audioTrackId}.mp3`
@@ -450,7 +469,30 @@ export default function ChantPlayer({
           console.log('🔄 Audio load started')
         }}
         onLoadedData={() => {
-          console.log('✅ Audio data loaded')
+          console.log('✅ Audio data loaded, readyState:', audioRef.current?.readyState)
+          // Try autoplay when data is loaded
+          if (autoPlay && !hasAttemptedAutoplay && audioRef.current) {
+            const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
+            if (userInteracted && audioRef.current.readyState >= 2) {
+              audioRef.current.play()
+                .then(() => {
+                  setIsPlaying(true)
+                  setHasAttemptedAutoplay(true)
+                  console.log('🎉 AUTOPLAY SUCCESSFUL (loadeddata)!')
+                })
+                .catch((e: any) => {
+                  console.log('⚠️ Autoplay from loadeddata blocked:', e.message)
+                })
+            }
+          }
+        }}
+        onPlay={() => {
+          console.log('▶️ Audio started playing')
+          setIsPlaying(true)
+        }}
+        onPause={() => {
+          console.log('⏸️ Audio paused')
+          setIsPlaying(false)
         }}
       />
     </div>
