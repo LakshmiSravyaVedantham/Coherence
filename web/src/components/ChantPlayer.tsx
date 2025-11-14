@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { useSessionStore } from '@/store/sessionStore'
 import { getChantById, getChantAudioPath } from '@/lib/chants'
+import { useKeyboardShortcuts } from './KeyboardShortcuts'
 
 // Global audio play trigger function
 let globalAudioPlayTrigger: (() => Promise<void>) | null = null
@@ -247,7 +248,7 @@ export default function ChantPlayer({
     }
   }, [audioTrackId, onTimeUpdate, onAudioElementReady, autoPlay, hasAttemptedAutoplay])
 
-  const togglePlay = async () => {
+  const togglePlay = useCallback(async () => {
     const audio = audioRef.current
     if (!audio) return
 
@@ -274,25 +275,64 @@ export default function ChantPlayer({
         }
       }
     }
-  }
+  }, [isPlaying])
 
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSeek = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current
     if (!audio) return
 
     const newTime = parseFloat(e.target.value)
     audio.currentTime = newTime
     setCurrentTime(newTime)
-  }
+  }, [])
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current
     if (!audio) return
 
     const newVolume = parseFloat(e.target.value)
     audio.volume = newVolume
     setVolume(newVolume)
-  }
+  }, [])
+
+  // Keyboard shortcuts for audio control
+  useKeyboardShortcuts([
+    {
+      key: ' ',
+      description: 'Play/pause',
+      action: togglePlay,
+    },
+    {
+      key: 'm',
+      description: 'Mute/unmute',
+      action: () => {
+        const audio = audioRef.current
+        if (audio) {
+          audio.muted = !audio.muted
+        }
+      },
+    },
+    {
+      key: 'ArrowLeft',
+      description: 'Rewind 5 seconds',
+      action: () => {
+        const audio = audioRef.current
+        if (audio) {
+          audio.currentTime = Math.max(0, audio.currentTime - 5)
+        }
+      },
+    },
+    {
+      key: 'ArrowRight',
+      description: 'Forward 5 seconds',
+      action: () => {
+        const audio = audioRef.current
+        if (audio) {
+          audio.currentTime = Math.min(audio.duration, audio.currentTime + 5)
+        }
+      },
+    },
+  ])
 
   const formatTime = (seconds: number) => {
     if (isNaN(seconds)) return '0:00'

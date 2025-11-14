@@ -7,6 +7,9 @@ import SessionView from '@/components/SessionView'
 import ProfileView from '@/components/ProfileView'
 import ChantRecordings from '@/components/ChantRecordings'
 import Settings from '@/components/Settings'
+import OfflineIndicator from '@/components/OfflineIndicator'
+import KeyboardShortcutsHelp from '@/components/KeyboardShortcuts'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { useSessionStore } from '@/store/sessionStore'
 
 export default function Home() {
@@ -14,8 +17,11 @@ export default function Home() {
   const [view, setView] = useState<'home' | 'recordings' | 'profile' | 'session' | 'settings'>('home')
 
   return (
-    <SessionProvider>
-      <main className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black overflow-x-hidden">
+    <ErrorBoundary>
+      <SessionProvider>
+        <OfflineIndicator />
+        <KeyboardShortcutsHelp />
+        <main className="min-h-screen bg-gradient-to-b from-black via-purple-900 to-black overflow-x-hidden">
         {/* Navigation */}
         <nav className="border-b border-gray-800">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -81,7 +87,8 @@ export default function Home() {
           )}
         </div>
       </main>
-    </SessionProvider>
+      </SessionProvider>
+    </ErrorBoundary>
   )
 }
 
