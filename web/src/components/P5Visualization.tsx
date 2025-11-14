@@ -31,16 +31,10 @@ export default function P5Visualization({ className = '' }: P5VisualizationProps
         w = size
         m = w / 2
         p.createCanvas(w, w)
-        p.background(9)
-        p.stroke(255, 46)
-        p.translate(m, m)
       }
 
       p.draw = () => {
-        p.clear()
-        m = w / 2
-
-        // Get coherence values
+        // Get coherence values for color adjustment
         const groupCoherenceValue = currentSession?.groupMetrics?.averageCoherence || 0
         const personalCoherenceValue = personalCoherence || 0
         const avgCoherence = (groupCoherenceValue + personalCoherenceValue) / 2
@@ -62,37 +56,40 @@ export default function P5Visualization({ className = '' }: P5VisualizationProps
         }
         
         const alpha = 18 + Math.floor((avgCoherence / 100) * 28) // 18-46 alpha based on coherence
-        p.stroke(color[0], color[1], color[2], alpha)
 
-        // Animated pattern - similar to the code you provided
-        for (let i = 20000; i >= 0; i--) {
+        // Exact visualization code as provided
+        if (!t) {
+          p.createCanvas(w, w)
+        }
+        
+        p.clear()
+        m = w / 2
+        
+        // Main drawing loop - exact code structure
+        for (t += p.PI / 240, let i = 20000; i >= 0; i--) {
           if (i > 14) {
             const k = (i % 50) - 25
             const e = i / 1100
             const mag = p.sqrt(k * k + e * e)
             const d = 5 * p.cos(mag - t + (i % 2))
+            
+            // Use coherence-based color
+            p.stroke(color[0], color[1], color[2], alpha)
+            
             const x = k + (k * d / 6) * p.sin(d + e / 3 + t) + m
             const y = 90 + e * d - (e / d) * 2 * p.cos(d + t) + m
             p.point(x, y)
-          } else if (i === 14) {
-            img = p.get()
-          } else {
+          } else if (i !== 14) {
             p.rotate(p.PI / 7)
             if (img) {
               p.image(img, -m, -m)
             }
+          } else {
+            img = p.get()
+            p.background(9)
+            p.translate(m, m)
           }
         }
-
-        if (img) {
-          p.stroke(255, 46)
-          p.background(9)
-          p.translate(m, m)
-        }
-
-        // Speed up animation based on coherence
-        const speedMultiplier = 1 + (avgCoherence / 100) * 0.5
-        t += (p.PI / 240) * speedMultiplier
       }
 
       p.windowResized = () => {
