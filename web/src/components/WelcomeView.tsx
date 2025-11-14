@@ -36,12 +36,23 @@ export default function WelcomeView() {
     setShowIntentionPicker(false)
     setSelectedChant(null)
     
-    // Trigger autoplay immediately after user interaction
-    // This is within the user interaction context, so browsers will allow it
-    setTimeout(async () => {
-      const { triggerGlobalAudioPlay } = await import('@/components/ChantPlayer')
-      await triggerGlobalAudioPlay()
-    }, 200)
+    // Trigger autoplay immediately - use multiple attempts
+    const triggerAutoplay = async () => {
+      try {
+        const { triggerGlobalAudioPlay } = await import('@/components/ChantPlayer')
+        // Try immediately
+        await triggerGlobalAudioPlay()
+        // Try again after a short delay (audio might not be ready yet)
+        setTimeout(() => triggerGlobalAudioPlay(), 500)
+        // Final attempt after audio should be loaded
+        setTimeout(() => triggerGlobalAudioPlay(), 1500)
+      } catch (error) {
+        console.error('Error triggering autoplay:', error)
+      }
+    }
+    
+    // Start triggering immediately (within user interaction context)
+    triggerAutoplay()
   }
 
   return (

@@ -94,15 +94,40 @@ export default function SessionTabs() {
                       // Audio element is ready - try to play immediately
                       if (element) {
                         const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
+                        console.log('🎵 Audio element ready in SessionTabs, userInteracted:', userInteracted, 'readyState:', element.readyState)
+                        
                         if (userInteracted) {
                           // Try playing immediately when element is ready
-                          element.play()
-                            .then(() => {
-                              console.log('🎉 Autoplay from SessionTabs callback!')
-                            })
-                            .catch((e: any) => {
-                              console.log('⚠️ Autoplay from callback blocked:', e.message)
-                            })
+                          const tryPlay = async () => {
+                            try {
+                              if (element.readyState >= 2) {
+                                await element.play()
+                                console.log('🎉 Autoplay from SessionTabs callback - SUCCESS!')
+                              } else {
+                                // Wait for ready state
+                                element.addEventListener('canplay', async () => {
+                                  try {
+                                    await element.play()
+                                    console.log('🎉 Autoplay from SessionTabs (canplay) - SUCCESS!')
+                                  } catch (e: any) {
+                                    console.log('⚠️ Autoplay from canplay blocked:', e.message)
+                                  }
+                                }, { once: true })
+                              }
+                            } catch (e: any) {
+                              console.log('⚠️ Autoplay from callback blocked:', e.name, e.message)
+                              // Retry after a delay
+                              setTimeout(async () => {
+                                try {
+                                  await element.play()
+                                  console.log('🎉 Autoplay from SessionTabs (retry) - SUCCESS!')
+                                } catch (e2: any) {
+                                  console.log('⚠️ Autoplay retry also blocked:', e2.message)
+                                }
+                              }, 500)
+                            }
+                          }
+                          tryPlay()
                         }
                       }
                     }}

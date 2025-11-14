@@ -82,11 +82,23 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
           detail: { audioTrack: data.audioTrack } 
         }))
         
-        // Also trigger global audio play immediately (within user interaction context)
-        setTimeout(async () => {
-          const { triggerGlobalAudioPlay } = await import('@/components/ChantPlayer')
-          triggerGlobalAudioPlay()
-        }, 100)
+        // Trigger global audio play with multiple attempts (within user interaction context)
+        const triggerAutoplay = async () => {
+          try {
+            const { triggerGlobalAudioPlay } = await import('@/components/ChantPlayer')
+            // Immediate attempt
+            await triggerGlobalAudioPlay()
+            // Retry after audio should be loading
+            setTimeout(() => triggerGlobalAudioPlay(), 300)
+            // Final attempt after audio should be ready
+            setTimeout(() => triggerGlobalAudioPlay(), 1000)
+          } catch (error) {
+            console.error('Error in session context autoplay:', error)
+          }
+        }
+        
+        // Start immediately
+        triggerAutoplay()
       }
     })
 

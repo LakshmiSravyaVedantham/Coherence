@@ -13,13 +13,28 @@ export default function SessionTimer({ startTime, duration, onComplete }: Sessio
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    const updateTimer = () => {
-      const elapsed = Date.now() - startTime
-      const remaining = Math.max(0, duration - elapsed)
-      const progressPercent = Math.min(100, (elapsed / duration) * 100)
+    // Validate inputs
+    if (!startTime || !duration || isNaN(startTime) || isNaN(duration) || duration <= 0) {
+      console.warn('SessionTimer: Invalid startTime or duration', { startTime, duration })
+      setTimeRemaining(0)
+      setProgress(0)
+      return
+    }
 
-      setTimeRemaining(Math.floor(remaining / 1000))
-      setProgress(progressPercent)
+    const updateTimer = () => {
+      const now = Date.now()
+      const elapsed = now - startTime
+      const remaining = Math.max(0, duration - elapsed)
+      const progressPercent = Math.min(100, Math.max(0, (elapsed / duration) * 100))
+
+      // Ensure we don't set NaN values
+      const remainingSeconds = Math.floor(remaining / 1000)
+      if (!isNaN(remainingSeconds) && remainingSeconds >= 0) {
+        setTimeRemaining(remainingSeconds)
+      }
+      if (!isNaN(progressPercent) && progressPercent >= 0 && progressPercent <= 100) {
+        setProgress(progressPercent)
+      }
 
       if (remaining <= 0 && onComplete) {
         onComplete()
@@ -33,8 +48,9 @@ export default function SessionTimer({ startTime, duration, onComplete }: Sessio
   }, [startTime, duration, onComplete])
 
   const formatTime = (seconds: number) => {
+    if (isNaN(seconds) || seconds < 0) return '0:00'
     const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
+    const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 

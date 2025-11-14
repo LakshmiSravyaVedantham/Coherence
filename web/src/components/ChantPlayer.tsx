@@ -40,48 +40,71 @@ export default function ChantPlayer({
   const [hasAttemptedAutoplay, setHasAttemptedAutoplay] = useState(false)
 
   // Create a play function that can be called globally
-  const playAudio = async () => {
+  const playAudio = useCallback(async () => {
     const audio = audioRef.current
-    if (!audio || !autoPlay) return
+    if (!audio || !autoPlay || hasAttemptedAutoplay) return
+    
+    console.log('🎯 Global playAudio called, readyState:', audio.readyState, 'src:', audio.src)
     
     try {
+      // Ensure audio is loaded
+      if (!audio.src || audio.src === '') {
+        console.log('⚠️ Audio src not set, waiting...')
+        return
+      }
+
+      // Try to play immediately if ready
       if (audio.readyState >= 2) {
+        setHasAttemptedAutoplay(true)
         await audio.play()
         setIsPlaying(true)
-        setHasAttemptedAutoplay(true)
-        console.log('🎉 GLOBAL AUTOPLAY TRIGGERED - SUCCESS!')
-      } else {
-        // Wait for audio to be ready
-        const checkReady = setInterval(() => {
-          if (audio.readyState >= 2) {
-            clearInterval(checkReady)
-            audio.play()
-              .then(() => {
-                setIsPlaying(true)
-                setHasAttemptedAutoplay(true)
-                console.log('🎉 GLOBAL AUTOPLAY TRIGGERED (after wait) - SUCCESS!')
-              })
-              .catch((e: any) => {
-                console.error('❌ Global autoplay failed:', e.message)
-              })
-          }
-        }, 50)
-        
-        // Timeout after 5 seconds
-        setTimeout(() => clearInterval(checkReady), 5000)
+        console.log('🎉 GLOBAL AUTOPLAY SUCCESSFUL!')
+        return
       }
+
+      // Wait for audio to be ready
+      const checkReady = () => {
+        if (audio.readyState >= 2) {
+          setHasAttemptedAutoplay(true)
+          audio.play()
+            .then(() => {
+              setIsPlaying(true)
+              console.log('🎉 GLOBAL AUTOPLAY SUCCESSFUL (after wait)!')
+            })
+            .catch((e: any) => {
+              console.error('❌ Global autoplay failed:', e.name, e.message)
+              setHasAttemptedAutoplay(false) // Allow retry
+            })
+        } else {
+          // Check again in 100ms
+          setTimeout(checkReady, 100)
+        }
+      }
+      
+      // Start checking
+      setTimeout(checkReady, 100)
+      
+      // Timeout after 5 seconds
+      setTimeout(() => {
+        if (!isPlaying) {
+          console.warn('⚠️ Autoplay timeout - audio not ready after 5 seconds')
+        }
+      }, 5000)
     } catch (e: any) {
-      console.error('❌ Global autoplay error:', e.message)
+      console.error('❌ Global autoplay error:', e.name, e.message)
+      setHasAttemptedAutoplay(false) // Allow retry
     }
-  }
+  }, [autoPlay, hasAttemptedAutoplay, isPlaying])
 
   // Register the play function globally
   useEffect(() => {
-    setGlobalAudioPlayTrigger(playAudio)
+    if (autoPlay) {
+      setGlobalAudioPlayTrigger(playAudio)
+    }
     return () => {
       setGlobalAudioPlayTrigger(null)
     }
-  }, [autoPlay, audioTrackId])
+  }, [autoPlay, audioTrackId, playAudio])
 
   // Listen for session_joined event to trigger immediate autoplay
   useEffect(() => {
