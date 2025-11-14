@@ -17,7 +17,30 @@ This guide covers deploying the Sync platform to production.
    - Render
    - Fly.io
 
-## Step 1: Deploy Backend
+## Quick Deploy: Full App on Render (Easiest)
+
+Render can deploy both frontend and backend from one configuration:
+
+1. **Sign up** at [render.com](https://render.com)
+2. **Connect GitHub** repository
+3. **Create Blueprint** (or use existing `render.yaml`)
+4. **Select repository** and Render will detect `render.yaml`
+5. **Add Environment Variables**:
+   - `SUPABASE_URL`: Your Supabase project URL
+   - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
+   - `NEXT_PUBLIC_SUPABASE_URL`: Same as SUPABASE_URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon key
+6. **Deploy** - Render will deploy both services automatically
+7. **Note the URLs** - Frontend and backend will get their own URLs
+
+The `render.yaml` file automatically:
+- Links frontend to backend URLs
+- Converts WebSocket URL to `wss://` format
+- Sets up health checks
+
+---
+
+## Step 1: Deploy Backend (If deploying separately)
 
 The backend needs to be deployed first since the frontend connects to it.
 

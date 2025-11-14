@@ -56,24 +56,27 @@ See individual README files in each directory for setup instructions.
 
 ## Deployment
 
-**Quick Deploy to Vercel:**
+### 🚀 Quick Deploy to Render (Easiest - Full App)
 
-1. **Deploy Backend** (choose one):
-   - **Railway** (recommended): Connect GitHub repo, select `backend` directory, add env vars
-   - **Render**: Create web service, set root to `backend`, enable WebSockets
-   - **Fly.io**: `cd backend && fly launch`
+Deploy both frontend and backend in one go:
 
-2. **Deploy Frontend to Vercel**:
-   ```bash
-   npm i -g vercel
-   vercel login
-   vercel --cwd web
-   ```
-   Or use Vercel dashboard: Import repo → Set root to `web` → Deploy
+1. **Sign up** at [render.com](https://render.com)
+2. **Create Blueprint** → Connect GitHub repo
+3. **Render auto-detects** `render.yaml` and creates both services
+4. **Add environment variables** (see [RENDER_DEPLOY.md](./RENDER_DEPLOY.md))
+5. **Deploy** - Done! 🎉
 
-3. **Set Environment Variables**:
-   - Frontend: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_WS_URL`
-   - Backend: `SUPABASE_URL`, `SUPABASE_KEY`, `PORT`, `CORS_ORIGIN`
+📖 **Full Render guide**: See [RENDER_DEPLOY.md](./RENDER_DEPLOY.md)
+
+### Alternative: Deploy Separately
+
+**Option 1: Vercel (Frontend) + Railway (Backend)**
+- Frontend: Deploy to Vercel (see DEPLOYMENT.md)
+- Backend: Deploy to Railway (see DEPLOYMENT.md)
+
+**Option 2: Render (Both)**
+- Use the `render.yaml` configuration
+- Both services deploy automatically
 
 📖 **Full deployment guide**: See [DEPLOYMENT.md](./DEPLOYMENT.md)
 
