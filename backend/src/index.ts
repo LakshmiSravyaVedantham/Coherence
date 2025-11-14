@@ -37,13 +37,18 @@ if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
   }
 }
 
+// Health check endpoint for deployment platforms
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() })
+})
+
 // Routes
 setupRoutes(app);
 
 // Socket.io handlers
 setupSocketHandlers(io);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
 httpServer.listen(PORT, () => {
   console.log(`🚀 Sync backend server running on port ${PORT}`);
