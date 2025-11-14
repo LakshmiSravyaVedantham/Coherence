@@ -24,16 +24,31 @@ coherence_cursor/
 └── docs/                 # Documentation
 ```
 
-## MVP Features
+## Features (All Phases Complete ✅)
 
+### Core Features
 1. ✅ HRV monitoring & coherence calculation
 2. ✅ Synchronized chanting sessions with audio playback
 3. ✅ Multiple chant options (Om, Gayatri, Buddhist mantras, etc.)
-4. ✅ Basic group metrics
+4. ✅ Group and personal metrics
 5. ✅ Sacred geometry visualization
 6. ✅ Data collection infrastructure
 7. ✅ Personal intention setting
 8. ✅ Real-time group coherence tracking
+
+### Advanced Features
+- ✅ Session history & analytics
+- ✅ Audio equalizer & spatial audio
+- ✅ Settings & personalization
+- ✅ Advanced insights (AI-powered)
+- ✅ Data export (CSV, JSON, PDF)
+- ✅ Research dashboard
+- ✅ Social features (leaderboards, sharing, community)
+- ✅ Error handling & offline support
+- ✅ Keyboard shortcuts & accessibility
+- ✅ Performance optimizations
+
+**See [PHASES_COMPLETE.md](./PHASES_COMPLETE.md) for complete feature list.**
 
 ## Getting Started
 
