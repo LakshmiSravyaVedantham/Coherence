@@ -28,6 +28,8 @@ import QuantumEntanglement from './QuantumEntanglement'
 import Leaderboard from './Leaderboard'
 import SessionSharing from './SessionSharing'
 import CommunityFeed from './CommunityFeed'
+import AudioEqualizer from './AudioEqualizer'
+import AdvancedInsights from './AdvancedInsights'
 import { getChantById } from '@/lib/chants'
 
 export default function SessionTabs() {
@@ -136,6 +138,11 @@ export default function SessionTabs() {
                     />
                   </div>
                 </div>
+
+                {/* Audio Equalizer */}
+                <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                  <AudioEqualizer />
+                </div>
               </>
             )}
 
@@ -182,6 +189,7 @@ export default function SessionTabs() {
           <div className="space-y-6">
             <RealTimeStats />
             <CoherenceInsights />
+            <AdvancedInsights />
             <IntentionResonance />
             {currentSession.participantCount > 1 && (
               <>

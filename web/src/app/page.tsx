@@ -6,11 +6,12 @@ import WelcomeView from '@/components/WelcomeView'
 import SessionView from '@/components/SessionView'
 import ProfileView from '@/components/ProfileView'
 import ChantRecordings from '@/components/ChantRecordings'
+import Settings from '@/components/Settings'
 import { useSessionStore } from '@/store/sessionStore'
 
 export default function Home() {
   const { currentSession, isConnected } = useSessionStore()
-  const [view, setView] = useState<'home' | 'recordings' | 'profile' | 'session'>('home')
+  const [view, setView] = useState<'home' | 'recordings' | 'profile' | 'session' | 'settings'>('home')
 
   return (
     <SessionProvider>
@@ -63,6 +64,8 @@ export default function Home() {
             <ChantRecordings />
           ) : view === 'profile' ? (
             <ProfileView />
+          ) : view === 'settings' ? (
+            <Settings />
           ) : (
             <WelcomeView />
           )}
