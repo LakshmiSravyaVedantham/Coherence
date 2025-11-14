@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import p5 from 'p5'
 import ParticipantIndicators from './ParticipantIndicators'
 
 interface CoherenceVisualizationProps {
@@ -15,104 +15,90 @@ export default function CoherenceVisualization({
   groupCoherence,
   coherencePhase,
 }: CoherenceVisualizationProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationRef = useRef<number>()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const p5InstanceRef = useRef<p5 | null>(null)
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    if (!containerRef.current) return
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    const sketch = (p: p5) => {
+      let t = 0
+      let w = 400
+      let m = 200
+      let img: p5.Image | null = null
 
-    const resizeCanvas = () => {
-      canvas.width = canvas.offsetWidth
-      canvas.height = canvas.offsetHeight
+      p.setup = () => {
+        const container = containerRef.current
+        if (!container) return
+        
+        const size = Math.min(container.offsetWidth, container.offsetHeight) || 400
+        w = size
+        m = w / 2
+        p.createCanvas(w, w)
+        p.background(9)
+        p.stroke(255, 46)
+        p.translate(m, m)
+      }
+
+      p.draw = () => {
+        p.clear()
+        m = w / 2
+
+        // Adjust stroke color based on coherence
+        const colors = {
+          low: [239, 68, 68],    // red
+          medium: [234, 179, 8], // yellow
+          high: [34, 197, 94],    // green
+        }
+        const color = colors[coherencePhase]
+        const alpha = 18 + Math.floor((groupCoherence / 100) * 28) // 18-46 alpha based on coherence
+        p.stroke(color[0], color[1], color[2], alpha)
+
+        for (let i = 20000; i >= 0; i--) {
+          if (i > 14) {
+            const k = (i % 50) - 25
+            const e = i / 1100
+            const mag = p.sqrt(k * k + e * e)
+            const d = 5 * p.cos(mag - t + (i % 2))
+            const x = k + (k * d / 6) * p.sin(d + e / 3 + t) + m
+            const y = 90 + e * d - (e / d) * 2 * p.cos(d + t) + m
+            p.point(x, y)
+          } else if (i === 14) {
+            img = p.get()
+          } else {
+            p.rotate(p.PI / 7)
+            if (img) {
+              p.image(img, -m, -m)
+            }
+          }
+        }
+
+        if (img) {
+          p.stroke(255, 46)
+          p.background(9)
+          p.translate(m, m)
+        }
+
+        t += p.PI / 240
+      }
+
+      p.windowResized = () => {
+        const container = containerRef.current
+        if (!container) return
+        
+        const size = Math.min(container.offsetWidth, container.offsetHeight) || 400
+        w = size
+        m = w / 2
+        p.resizeCanvas(w, w)
+      }
     }
 
-    resizeCanvas()
-    window.addEventListener('resize', resizeCanvas)
-
-    let animationPhase = 0
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-      const maxRadius = Math.min(canvas.width, canvas.height) / 2 - 20
-
-      // Base radius scales with group coherence
-      const baseRadius = maxRadius * (0.3 + (groupCoherence / 100) * 0.7)
-
-      // Color based on coherence phase
-      const colors = {
-        low: '#ef4444',
-        medium: '#eab308',
-        high: '#22c55e',
-      }
-      const color = colors[coherencePhase]
-
-      // Draw concentric circles (Flower of Life pattern)
-      const circleCount = 7
-      for (let i = 0; i < circleCount; i++) {
-        const radius = baseRadius * (i / (circleCount - 1))
-        const alpha = 0.3 + (groupCoherence / 100) * 0.7
-
-        ctx.strokeStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0')
-        ctx.lineWidth = 2
-        ctx.beginPath()
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
-        ctx.stroke()
-      }
-
-      // Draw interlocking circles
-      const interlockRadius = baseRadius / 3
-      for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 3) {
-        const x = centerX + Math.cos(angle + animationPhase) * interlockRadius
-        const y = centerY + Math.sin(angle + animationPhase) * interlockRadius
-
-        ctx.strokeStyle = '#ffffff' + '80'
-        ctx.lineWidth = 1
-        ctx.beginPath()
-        ctx.arc(x, y, interlockRadius, 0, Math.PI * 2)
-        ctx.stroke()
-      }
-
-      // Draw personal coherence indicator (pulsing dot)
-      const personalAngle = (animationPhase * 2) % (Math.PI * 2)
-      const personalRadius = baseRadius * 0.8
-      const personalX = centerX + Math.cos(personalAngle) * personalRadius
-      const personalY = centerY + Math.sin(personalAngle) * personalRadius
-
-      const personalColor =
-        personalCoherence < 40
-          ? '#ef4444'
-          : personalCoherence < 60
-          ? '#eab308'
-          : '#22c55e'
-
-      ctx.fillStyle = personalColor
-      ctx.beginPath()
-      ctx.arc(
-        personalX,
-        personalY,
-        8 + Math.sin(animationPhase * 4) * 3,
-        0,
-        Math.PI * 2
-      )
-      ctx.fill()
-
-      animationPhase += 0.02
-      animationRef.current = requestAnimationFrame(draw)
-    }
-
-    draw()
+    p5InstanceRef.current = new p5(sketch, containerRef.current)
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas)
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
+      if (p5InstanceRef.current) {
+        p5InstanceRef.current.remove()
+        p5InstanceRef.current = null
       }
     }
   }, [groupCoherence, coherencePhase, personalCoherence])
@@ -123,9 +109,9 @@ export default function CoherenceVisualization({
         <div className="text-sm text-purple-300 font-semibold mb-1">Chant Coherence Visualization</div>
         <div className="text-xs text-gray-400">Collective harmony through synchronized chanting</div>
       </div>
-      <canvas
-        ref={canvasRef}
-        className="w-full h-full coherence-mandala"
+      <div
+        ref={containerRef}
+        className="w-full h-full"
         style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, rgba(0,0,0,0.9) 100%)' }}
       />
       <ParticipantIndicators />
