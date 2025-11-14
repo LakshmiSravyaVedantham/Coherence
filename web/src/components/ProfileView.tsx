@@ -5,9 +5,11 @@ import SessionHistory from './SessionHistory'
 import PersonalAnalytics from './PersonalAnalytics'
 import CoherenceStreak from './CoherenceStreak'
 import AdvancedAnalytics from './AdvancedAnalytics'
+import DataExport from './DataExport'
+import ResearchDashboard from './ResearchDashboard'
 
 export default function ProfileView() {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'history'>('analytics')
+  const [activeTab, setActiveTab] = useState<'analytics' | 'history' | 'research' | 'export'>('analytics')
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -17,10 +19,10 @@ export default function ProfileView() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-6 border-b border-gray-700">
+      <div className="flex gap-4 mb-6 border-b border-gray-700 overflow-x-auto">
         <button
           onClick={() => setActiveTab('analytics')}
-          className={`px-4 py-2 font-semibold transition-colors ${
+          className={`px-4 py-2 font-semibold transition-colors whitespace-nowrap ${
             activeTab === 'analytics'
               ? 'text-purple-400 border-b-2 border-purple-400'
               : 'text-gray-400 hover:text-gray-300'
@@ -30,13 +32,33 @@ export default function ProfileView() {
         </button>
         <button
           onClick={() => setActiveTab('history')}
-          className={`px-4 py-2 font-semibold transition-colors ${
+          className={`px-4 py-2 font-semibold transition-colors whitespace-nowrap ${
             activeTab === 'history'
               ? 'text-purple-400 border-b-2 border-purple-400'
               : 'text-gray-400 hover:text-gray-300'
           }`}
         >
           Session History
+        </button>
+        <button
+          onClick={() => setActiveTab('research')}
+          className={`px-4 py-2 font-semibold transition-colors whitespace-nowrap ${
+            activeTab === 'research'
+              ? 'text-purple-400 border-b-2 border-purple-400'
+              : 'text-gray-400 hover:text-gray-300'
+          }`}
+        >
+          Research
+        </button>
+        <button
+          onClick={() => setActiveTab('export')}
+          className={`px-4 py-2 font-semibold transition-colors whitespace-nowrap ${
+            activeTab === 'export'
+              ? 'text-purple-400 border-b-2 border-purple-400'
+              : 'text-gray-400 hover:text-gray-300'
+          }`}
+        >
+          Export Data
         </button>
       </div>
 
@@ -54,6 +76,8 @@ export default function ProfileView() {
           </>
         )}
         {activeTab === 'history' && <SessionHistory />}
+        {activeTab === 'research' && <ResearchDashboard />}
+        {activeTab === 'export' && <DataExport />}
       </div>
     </div>
   )
