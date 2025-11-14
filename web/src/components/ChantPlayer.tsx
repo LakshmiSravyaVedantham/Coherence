@@ -45,6 +45,7 @@ export default function ChantPlayer({
       audioRef.current.pause()
       audioRef.current.currentTime = 0
       setIsPlaying(false)
+      setHasAttemptedAutoplay(false) // Reset autoplay attempt flag for next session
       console.log('🛑 Audio stopped - no active session')
     }
   }, [currentSession])

@@ -139,7 +139,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     }
     setCurrentSession(null)
     localStorage.removeItem('sync_current_session')
-    localStorage.removeItem('sync_user_interacted') // Reset interaction flag
+    // Don't remove sync_user_interacted - keep it so autoplay works on next session
+    // The user has already interacted, so browsers will allow autoplay
   }
 
   const updateCoherence = (coherence: number) => {
