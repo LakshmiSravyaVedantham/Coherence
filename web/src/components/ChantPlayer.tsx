@@ -34,6 +34,8 @@ export default function ChantPlayer({
     const chant = getChantById(audioTrackId)
     const audioPath = chant ? getChantAudioPath(chant) : `/audio/${audioTrackId}.mp3`
     
+    console.log('Loading audio:', audioPath)
+    
     // Reset and load new audio
     audio.pause()
     audio.src = audioPath
@@ -41,9 +43,6 @@ export default function ChantPlayer({
     setCurrentTime(0)
     setIsPlaying(false)
     setHasAttemptedAutoplay(false) // Reset autoplay attempt for new track
-    
-    // Check if user has interacted (joined session) - this enables autoplay
-    const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
 
     const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime)
@@ -54,6 +53,7 @@ export default function ChantPlayer({
 
     const handleLoadedMetadata = () => {
       setDuration(audio.duration)
+      console.log('Audio metadata loaded, duration:', audio.duration)
     }
 
     const handleEnded = () => {
@@ -61,61 +61,78 @@ export default function ChantPlayer({
       setCurrentTime(0)
     }
 
-    const handleCanPlay = async () => {
-      // Audio is ready to play
-      console.log('Audio loaded:', audioPath, 'Duration:', audio.duration)
-      if (onAudioElementReady) {
-        onAudioElementReady(audio)
-      }
-      // Auto-play if requested, user has interacted, and not already attempted
+    const attemptAutoplay = async () => {
       const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
+      console.log('Attempting autoplay, userInteracted:', userInteracted, 'autoPlay:', autoPlay, 'hasAttempted:', hasAttemptedAutoplay)
+      
       if (autoPlay && userInteracted && !hasAttemptedAutoplay) {
         setHasAttemptedAutoplay(true)
         try {
-          // Ensure audio is loaded and ready
-          if (audio.readyState >= 2) {
+          // Wait a bit to ensure audio is ready
+          if (audio.readyState >= 3) { // HAVE_FUTURE_DATA
             await audio.play()
             setIsPlaying(true)
-            console.log('Autoplay successful')
+            console.log('✅ Autoplay successful!')
           } else {
             // Wait for audio to be ready
-            audio.addEventListener('canplaythrough', async () => {
-              try {
-                await audio.play()
-                setIsPlaying(true)
-                console.log('Autoplay successful after canplaythrough')
-              } catch (e) {
-                console.log('Auto-play prevented:', e)
+            const playWhenReady = async () => {
+              if (audio.readyState >= 3) {
+                try {
+                  await audio.play()
+                  setIsPlaying(true)
+                  console.log('✅ Autoplay successful after waiting!')
+                } catch (e) {
+                  console.error('❌ Autoplay failed after waiting:', e)
+                }
+              } else {
+                // Try again in 100ms
+                setTimeout(playWhenReady, 100)
               }
-            }, { once: true })
+            }
+            playWhenReady()
           }
-        } catch (e) {
-          console.log('Auto-play prevented - user interaction required:', e)
-          // Show a play button or notification
+        } catch (e: any) {
+          console.error('❌ Autoplay prevented:', e.name, e.message)
+          // Don't show error to user, just let them click play button
         }
       }
     }
 
-    // Notify parent when audio element is ready
-    if (audio.readyState >= 2) {
-      // HAVE_CURRENT_DATA or higher
+    const handleCanPlay = () => {
+      console.log('Audio can play, readyState:', audio.readyState)
       if (onAudioElementReady) {
         onAudioElementReady(audio)
       }
+      attemptAutoplay()
+    }
+
+    const handleCanPlayThrough = () => {
+      console.log('Audio can play through, readyState:', audio.readyState)
+      attemptAutoplay()
+    }
+
+    // Notify parent when audio element is ready
+    if (audio.readyState >= 2) {
+      if (onAudioElementReady) {
+        onAudioElementReady(audio)
+      }
+      attemptAutoplay()
     }
 
     audio.addEventListener('timeupdate', handleTimeUpdate)
     audio.addEventListener('loadedmetadata', handleLoadedMetadata)
     audio.addEventListener('ended', handleEnded)
     audio.addEventListener('canplay', handleCanPlay)
+    audio.addEventListener('canplaythrough', handleCanPlayThrough)
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate)
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
       audio.removeEventListener('ended', handleEnded)
       audio.removeEventListener('canplay', handleCanPlay)
+      audio.removeEventListener('canplaythrough', handleCanPlayThrough)
     }
-  }, [audioTrackId, onTimeUpdate, onAudioElementReady, autoPlay, hasAttemptedAutoplay])
+  }, [audioTrackId, onTimeUpdate, onAudioElementReady, autoPlay])
 
   const togglePlay = async () => {
     const audio = audioRef.current
@@ -173,21 +190,11 @@ export default function ChantPlayer({
 
   return (
     <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-      {autoPlay && !isPlaying && !hasAttemptedAutoplay && (
+      {autoPlay && !isPlaying && hasAttemptedAutoplay && (
         <div className="mb-4 p-3 bg-yellow-900/20 border border-yellow-500/50 rounded-lg text-center">
-          <p className="text-sm text-yellow-300 mb-2">Click the play button to start chanting</p>
+          <p className="text-sm text-yellow-300 mb-2">Autoplay was blocked. Click the play button to start chanting</p>
           <button
-            onClick={() => {
-              const audio = audioRef.current
-              if (audio) {
-                audio.play()
-                  .then(() => {
-                    setIsPlaying(true)
-                    setHasAttemptedAutoplay(true)
-                  })
-                  .catch((e) => console.log('Play failed:', e))
-              }
-            }}
+            onClick={togglePlay}
             className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold"
           >
             ▶️ Start Chanting
@@ -251,7 +258,8 @@ export default function ChantPlayer({
       {/* Hidden audio element */}
       <audio
         ref={audioRef}
-        preload="metadata"
+        preload="auto"
+        playsInline
         onError={(e) => {
           const chant = getChantById(audioTrackId)
           const audioPath = chant ? getChantAudioPath(chant) : `/audio/${audioTrackId}.mp3`
