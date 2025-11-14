@@ -139,8 +139,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     }
     setCurrentSession(null)
     localStorage.removeItem('sync_current_session')
-    // Don't remove sync_user_interacted - keep it so autoplay works on next session
-    // The user has already interacted, so browsers will allow autoplay
+    // Reset interaction flag - autoplay should be off when not in session
+    // User will need to manually start playback when joining next session
+    localStorage.removeItem('sync_user_interacted')
   }
 
   const updateCoherence = (coherence: number) => {

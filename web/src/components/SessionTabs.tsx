@@ -92,7 +92,7 @@ export default function SessionTabs() {
                   <ChantPlayer
                     audioTrackId={currentSession.audioTrack.id}
                     audioTrackName={currentSession.audioTrack.name}
-                    autoPlay={true}
+                    autoPlay={false}
                     onAudioElementReady={(element) => {
                       // Audio element is ready - try to play immediately
                       if (element) {
