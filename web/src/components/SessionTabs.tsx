@@ -84,8 +84,20 @@ export default function SessionTabs() {
                     audioTrackName={currentSession.audioTrack.name}
                     autoPlay={true}
                     onAudioElementReady={(element) => {
-                      // Audio element is ready - autoplay is handled in ChantPlayer
-                      console.log('Audio element ready in SessionTabs')
+                      // Audio element is ready - try to play immediately
+                      if (element) {
+                        const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
+                        if (userInteracted) {
+                          // Try playing immediately when element is ready
+                          element.play()
+                            .then(() => {
+                              console.log('🎉 Autoplay from SessionTabs callback!')
+                            })
+                            .catch((e: any) => {
+                              console.log('⚠️ Autoplay from callback blocked:', e.message)
+                            })
+                        }
+                      }
                     }}
                   />
                   <div className="mt-4 text-center text-sm text-gray-400">
