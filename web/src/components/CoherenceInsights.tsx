@@ -5,9 +5,9 @@ import { useSessionStore } from '@/store/sessionStore'
 export default function CoherenceInsights() {
   const { currentSession, personalCoherence } = useSessionStore()
 
-  if (!currentSession) return null
+  if (!currentSession || !currentSession.groupMetrics) return null
 
-  const groupAvg = currentSession.groupMetrics.averageCoherence
+  const groupAvg = currentSession.groupMetrics.averageCoherence || 0
   const personal = personalCoherence
   const difference = personal - groupAvg
 

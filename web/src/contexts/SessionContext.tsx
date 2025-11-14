@@ -53,16 +53,27 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         currentPhase: data.currentPhase,
         participantCount: data.participantCount,
         groupMetrics: data.groupMetrics,
-        audioTrack: data.audioTrack,
+        audioTrack: data.audioTrack || {
+          id: 'om-chant-432hz',
+          name: 'Om Chant - 432 Hz Tuning',
+          duration: data.duration,
+        },
       })
 
       // Store session start for history
       const sessionStart = {
         sessionId: data.sessionId,
         startedAt: data.startedAt,
-        audioTrack: data.audioTrack,
+        audioTrack: data.audioTrack || {
+          id: 'om-chant-432hz',
+          name: 'Om Chant - 432 Hz Tuning',
+          duration: data.duration,
+        },
       }
       localStorage.setItem('sync_current_session', JSON.stringify(sessionStart))
+      
+      // Mark that user has interacted - this allows autoplay
+      localStorage.setItem('sync_user_interacted', 'true')
     })
 
     sock.on('group_metrics_update', (data: { groupMetrics: SessionInfo['groupMetrics'] }) => {

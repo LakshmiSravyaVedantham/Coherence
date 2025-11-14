@@ -119,6 +119,10 @@ export default function CoherenceVisualization({
 
   return (
     <div className="relative w-full aspect-square max-w-2xl mx-auto">
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 text-center">
+        <div className="text-sm text-purple-300 font-semibold mb-1">Chant Coherence Visualization</div>
+        <div className="text-xs text-gray-400">Collective harmony through synchronized chanting</div>
+      </div>
       <canvas
         ref={canvasRef}
         className="w-full h-full coherence-mandala"

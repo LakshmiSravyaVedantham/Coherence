@@ -4,6 +4,7 @@ import { useState } from 'react'
 import SessionHistory from './SessionHistory'
 import PersonalAnalytics from './PersonalAnalytics'
 import CoherenceStreak from './CoherenceStreak'
+import AdvancedAnalytics from './AdvancedAnalytics'
 
 export default function ProfileView() {
   const [activeTab, setActiveTab] = useState<'analytics' | 'history'>('analytics')
@@ -45,8 +46,13 @@ export default function ProfileView() {
       </div>
 
       {/* Content */}
-      <div>
-        {activeTab === 'analytics' && <PersonalAnalytics />}
+      <div className="space-y-6">
+        {activeTab === 'analytics' && (
+          <>
+            <PersonalAnalytics />
+            <AdvancedAnalytics />
+          </>
+        )}
         {activeTab === 'history' && <SessionHistory />}
       </div>
     </div>

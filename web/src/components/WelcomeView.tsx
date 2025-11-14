@@ -7,6 +7,7 @@ import ChantSelector from './ChantSelector'
 import { useSessionStore } from '@/store/sessionStore'
 import { Chant } from '@/lib/chants'
 import GlobalStats from './GlobalStats'
+import AnimatedPattern from './AnimatedPattern'
 
 export default function WelcomeView() {
   const { joinSession } = useSession()
@@ -32,16 +33,22 @@ export default function WelcomeView() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
-      <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-        Sync
-      </h1>
-      <p className="text-xl text-gray-300 mb-4">
-        Collective Coherence Platform
-      </p>
-      <p className="text-lg text-purple-300 mb-12">
-        🕉️ Chant Together. Heal Together. 🕉️
-      </p>
+    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center relative">
+      {/* Animated Pattern Background */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
+        <AnimatedPattern width={600} height={600} />
+      </div>
+
+      <div className="relative z-10">
+        <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          Sync
+        </h1>
+        <p className="text-xl text-gray-300 mb-4">
+          Collective Coherence Platform
+        </p>
+        <p className="text-lg text-purple-300 mb-12">
+          🕉️ Chant Together. Heal Together. 🕉️
+        </p>
 
       {!isConnected ? (
         <div className="text-yellow-400">
@@ -82,8 +89,9 @@ export default function WelcomeView() {
       </div>
 
       {/* Global Stats */}
-      <div className="mt-8 w-full max-w-2xl">
+      <div className="mt-8 w-full max-w-2xl relative z-10">
         <GlobalStats />
+      </div>
       </div>
     </div>
   )

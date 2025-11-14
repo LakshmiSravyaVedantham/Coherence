@@ -15,7 +15,7 @@ export default function SessionNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([])
 
   useEffect(() => {
-    if (!currentSession) return
+    if (!currentSession || !currentSession.groupMetrics) return
 
     const newNotifications: Notification[] = []
 
@@ -37,7 +37,7 @@ export default function SessionNotifications() {
     }
 
     // Check for group milestones
-    if (currentSession.groupMetrics.averageCoherence >= 70) {
+    if (currentSession.groupMetrics?.averageCoherence >= 70) {
       newNotifications.push({
         id: 'group-peak',
         message: '🕉️ Group coherence is peaking!',

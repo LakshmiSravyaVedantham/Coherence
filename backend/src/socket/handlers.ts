@@ -25,7 +25,11 @@ export function setupSocketHandlers(io: Server): void {
       }
 
       // If chantId is provided, update the session's audio track
-      let audioTrack = session.audioTrack;
+      let audioTrack = session.audioTrack || {
+        id: 'om-chant-432hz',
+        name: 'Om Chant - 432 Hz Tuning',
+        duration: session.duration,
+      };
       if (data.chantId) {
         // Update audio track for this user's session view
         // Note: In a real implementation, you might want to allow different chants per user
@@ -33,7 +37,7 @@ export function setupSocketHandlers(io: Server): void {
         audioTrack = {
           id: data.chantId,
           name: data.chantId.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
-          duration: session.audioTrack.duration,
+          duration: audioTrack.duration,
         };
       }
 

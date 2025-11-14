@@ -9,6 +9,7 @@ interface ChantPlayerProps {
   audioTrackName: string
   onTimeUpdate?: (currentTime: number, duration: number) => void
   onAudioElementReady?: (element: HTMLAudioElement) => void
+  autoPlay?: boolean
 }
 
 export default function ChantPlayer({
@@ -16,12 +17,14 @@ export default function ChantPlayer({
   audioTrackName,
   onTimeUpdate,
   onAudioElementReady,
+  autoPlay = false,
 }: ChantPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(1)
+  const [hasAttemptedAutoplay, setHasAttemptedAutoplay] = useState(false)
 
   useEffect(() => {
     const audio = audioRef.current
@@ -37,6 +40,10 @@ export default function ChantPlayer({
     audio.load()
     setCurrentTime(0)
     setIsPlaying(false)
+    setHasAttemptedAutoplay(false) // Reset autoplay attempt for new track
+    
+    // Check if user has interacted (joined session) - this enables autoplay
+    const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
 
     const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime)
@@ -54,11 +61,38 @@ export default function ChantPlayer({
       setCurrentTime(0)
     }
 
-    const handleCanPlay = () => {
+    const handleCanPlay = async () => {
       // Audio is ready to play
-      console.log('Audio loaded:', audioPath)
+      console.log('Audio loaded:', audioPath, 'Duration:', audio.duration)
       if (onAudioElementReady) {
         onAudioElementReady(audio)
+      }
+      // Auto-play if requested, user has interacted, and not already attempted
+      const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
+      if (autoPlay && userInteracted && !hasAttemptedAutoplay) {
+        setHasAttemptedAutoplay(true)
+        try {
+          // Ensure audio is loaded and ready
+          if (audio.readyState >= 2) {
+            await audio.play()
+            setIsPlaying(true)
+            console.log('Autoplay successful')
+          } else {
+            // Wait for audio to be ready
+            audio.addEventListener('canplaythrough', async () => {
+              try {
+                await audio.play()
+                setIsPlaying(true)
+                console.log('Autoplay successful after canplaythrough')
+              } catch (e) {
+                console.log('Auto-play prevented:', e)
+              }
+            }, { once: true })
+          }
+        } catch (e) {
+          console.log('Auto-play prevented - user interaction required:', e)
+          // Show a play button or notification
+        }
       }
     }
 
@@ -81,18 +115,35 @@ export default function ChantPlayer({
       audio.removeEventListener('ended', handleEnded)
       audio.removeEventListener('canplay', handleCanPlay)
     }
-  }, [audioTrackId, onTimeUpdate])
+  }, [audioTrackId, onTimeUpdate, onAudioElementReady, autoPlay, hasAttemptedAutoplay])
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     const audio = audioRef.current
     if (!audio) return
 
-    if (isPlaying) {
-      audio.pause()
-    } else {
-      audio.play()
+    try {
+      if (isPlaying) {
+        audio.pause()
+        setIsPlaying(false)
+      } else {
+        await audio.play()
+        setIsPlaying(true)
+        setHasAttemptedAutoplay(true)
+      }
+    } catch (error) {
+      console.error('Error toggling playback:', error)
+      // If play fails, try loading the audio again
+      if (!isPlaying) {
+        audio.load()
+        try {
+          await audio.play()
+          setIsPlaying(true)
+          setHasAttemptedAutoplay(true)
+        } catch (e) {
+          console.error('Retry play also failed:', e)
+        }
+      }
     }
-    setIsPlaying(!isPlaying)
   }
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,6 +173,27 @@ export default function ChantPlayer({
 
   return (
     <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+      {autoPlay && !isPlaying && !hasAttemptedAutoplay && (
+        <div className="mb-4 p-3 bg-yellow-900/20 border border-yellow-500/50 rounded-lg text-center">
+          <p className="text-sm text-yellow-300 mb-2">Click the play button to start chanting</p>
+          <button
+            onClick={() => {
+              const audio = audioRef.current
+              if (audio) {
+                audio.play()
+                  .then(() => {
+                    setIsPlaying(true)
+                    setHasAttemptedAutoplay(true)
+                  })
+                  .catch((e) => console.log('Play failed:', e))
+              }
+            }}
+            className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold"
+          >
+            ▶️ Start Chanting
+          </button>
+        </div>
+      )}
       <div className="flex items-center gap-4 mb-4">
         <button
           onClick={togglePlay}

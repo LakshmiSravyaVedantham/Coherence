@@ -12,12 +12,12 @@ export default function CoherenceComparison() {
   } | null>(null)
 
   useEffect(() => {
-    if (!currentSession) return
+    if (!currentSession || !currentSession.groupMetrics) return
 
     // Simulate comparison data
     // In production, this would come from backend
     const total = currentSession.participantCount || 1
-    const avg = currentSession.groupMetrics.averageCoherence
+    const avg = currentSession.groupMetrics.averageCoherence || 0
     const diff = personalCoherence - avg
 
     let better = 0

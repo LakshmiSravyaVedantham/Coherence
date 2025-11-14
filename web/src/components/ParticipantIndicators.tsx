@@ -19,18 +19,18 @@ export default function ParticipantIndicators() {
 
     // Simulate participant positions in a circle
     // In production, this would come from real-time participant data
-    const participantCount = currentSession.groupMetrics.participantCount
+    const participantCount = currentSession.groupMetrics.participantCount || 0
     const newIndicators: ParticipantIndicator[] = []
 
     for (let i = 0; i < Math.min(participantCount, 20); i++) {
       // Arrange in a circle
-      const angle = (i / participantCount) * Math.PI * 2
+      const angle = (i / Math.max(participantCount, 1)) * Math.PI * 2
       const radius = 0.7
       const x = 50 + Math.cos(angle) * radius * 30
       const y = 50 + Math.sin(angle) * radius * 30
 
       // Simulate coherence (in production, this would be real data)
-      const coherence = currentSession.groupMetrics.averageCoherence + (Math.random() - 0.5) * 20
+      const coherence = (currentSession.groupMetrics?.averageCoherence || 0) + (Math.random() - 0.5) * 20
       const phase: 'low' | 'medium' | 'high' =
         coherence < 40 ? 'low' : coherence < 60 ? 'medium' : 'high'
 
