@@ -58,33 +58,38 @@ export default function P5Visualization({ className = '' }: P5VisualizationProps
         const alpha = 18 + Math.floor((avgCoherence / 100) * 28) // 18-46 alpha based on coherence
 
         // Exact visualization code as provided
-        if (!t) {
-          p.createCanvas(w, w)
-        }
-        
+        // t||createCanvas(w=400,w) - handled in setup
         p.clear()
         m = w / 2
         
-        // Main drawing loop - exact code structure
-        for (t += p.PI / 240, let i = 20000; i >= 0; i--) {
+        // Main drawing loop - exact code structure from user
+        // for(t+=PI/240,i=2e4;i--;)
+        t += p.PI / 240
+        for (let i = 20000; i >= 0; i--) {
+          // i>14? (draw points)
           if (i > 14) {
             const k = (i % 50) - 25
             const e = i / 1100
             const mag = p.sqrt(k * k + e * e)
             const d = 5 * p.cos(mag - t + (i % 2))
             
-            // Use coherence-based color
+            // Use coherence-based color instead of stroke(w,46)
             p.stroke(color[0], color[1], color[2], alpha)
             
+            // point(k+k*d/6*sin(d+e/3+t)+m,90+e*d-e/d*2*cos(d+t)+m)
             const x = k + (k * d / 6) * p.sin(d + e / 3 + t) + m
             const y = 90 + e * d - (e / d) * 2 * p.cos(d + t) + m
             p.point(x, y)
-          } else if (i !== 14) {
+          } 
+          // i^14? (i !== 14) rotate(PI/7).image(p,-m,-m)
+          else if (i !== 14) {
             p.rotate(p.PI / 7)
             if (img) {
               p.image(img, -m, -m)
             }
-          } else {
+          } 
+          // else: (p=get())+background(9).translate(m,m)
+          else {
             img = p.get()
             p.background(9)
             p.translate(m, m)
