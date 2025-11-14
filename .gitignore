@@ -11,6 +11,8 @@ build/
 *.xcworkspace
 xcuserdata/
 DerivedData/
+.next/
+out/
 
 # Environment variables
 .env
