@@ -384,12 +384,22 @@ export default function ChantPlayer({
 
   return (
     <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-      {autoPlay && !isPlaying && hasAttemptedAutoplay && (
-        <div className="mb-4 p-3 bg-yellow-900/20 border border-yellow-500/50 rounded-lg text-center">
-          <p className="text-sm text-yellow-300 mb-2">Autoplay was blocked. Click the play button to start chanting</p>
+      {autoPlay && !isPlaying && (
+        <div className={`mb-4 p-3 rounded-lg text-center ${
+          hasAttemptedAutoplay 
+            ? 'bg-yellow-900/20 border border-yellow-500/50' 
+            : 'bg-blue-900/20 border border-blue-500/50'
+        }`}>
+          <p className={`text-sm mb-2 ${
+            hasAttemptedAutoplay ? 'text-yellow-300' : 'text-blue-300'
+          }`}>
+            {hasAttemptedAutoplay 
+              ? 'Autoplay was blocked. Click play to start chanting'
+              : 'Audio loading... Click play when ready'}
+          </p>
           <button
             onClick={togglePlay}
-            className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold"
+            className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold transition-colors"
           >
             ▶️ Start Chanting
           </button>
