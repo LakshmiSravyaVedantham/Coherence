@@ -31,11 +31,13 @@ interface SessionState {
   isConnected: boolean
   personalCoherence: number
   heartRate: number | null
+  audioElementRef: HTMLAudioElement | null
   setCurrentSession: (session: SessionInfo | null) => void
   setIsConnected: (connected: boolean) => void
   setPersonalCoherence: (coherence: number) => void
   setHeartRate: (rate: number | null) => void
   updateGroupMetrics: (metrics: SessionInfo['groupMetrics']) => void
+  setAudioElementRef: (element: HTMLAudioElement | null) => void
 }
 
 export const useSessionStore = create<SessionState>((set) => ({
@@ -43,6 +45,7 @@ export const useSessionStore = create<SessionState>((set) => ({
   isConnected: false,
   personalCoherence: 0,
   heartRate: null,
+  audioElementRef: null,
   setCurrentSession: (session) => set({ currentSession: session }),
   setIsConnected: (connected) => set({ isConnected: connected }),
   setPersonalCoherence: (coherence) => set({ personalCoherence: coherence }),
@@ -57,5 +60,6 @@ export const useSessionStore = create<SessionState>((set) => ({
           }
         : null,
     })),
+  setAudioElementRef: (element) => set({ audioElementRef: element }),
 }))
 

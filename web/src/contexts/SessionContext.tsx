@@ -81,6 +81,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         window.dispatchEvent(new CustomEvent('sync_session_joined', { 
           detail: { audioTrack: data.audioTrack } 
         }))
+        
+        // Also trigger global audio play immediately (within user interaction context)
+        setTimeout(async () => {
+          const { triggerGlobalAudioPlay } = await import('@/components/ChantPlayer')
+          triggerGlobalAudioPlay()
+        }, 100)
       }
     })
 

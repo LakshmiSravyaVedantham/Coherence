@@ -4,6 +4,17 @@ import { useEffect, useRef, useState } from 'react'
 import { useSessionStore } from '@/store/sessionStore'
 import { getChantById, getChantAudioPath } from '@/lib/chants'
 
+// Global audio play trigger function
+let globalAudioPlayTrigger: (() => Promise<void>) | null = null
+export const setGlobalAudioPlayTrigger = (trigger: (() => Promise<void>) | null) => {
+  globalAudioPlayTrigger = trigger
+}
+export const triggerGlobalAudioPlay = async () => {
+  if (globalAudioPlayTrigger) {
+    await globalAudioPlayTrigger()
+  }
+}
+
 interface ChantPlayerProps {
   audioTrackId: string
   audioTrackName: string
@@ -20,11 +31,56 @@ export default function ChantPlayer({
   autoPlay = false,
 }: ChantPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
+  const { setAudioElementRef } = useSessionStore()
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(1)
   const [hasAttemptedAutoplay, setHasAttemptedAutoplay] = useState(false)
+
+  // Create a play function that can be called globally
+  const playAudio = async () => {
+    const audio = audioRef.current
+    if (!audio || !autoPlay) return
+    
+    try {
+      if (audio.readyState >= 2) {
+        await audio.play()
+        setIsPlaying(true)
+        setHasAttemptedAutoplay(true)
+        console.log('🎉 GLOBAL AUTOPLAY TRIGGERED - SUCCESS!')
+      } else {
+        // Wait for audio to be ready
+        const checkReady = setInterval(() => {
+          if (audio.readyState >= 2) {
+            clearInterval(checkReady)
+            audio.play()
+              .then(() => {
+                setIsPlaying(true)
+                setHasAttemptedAutoplay(true)
+                console.log('🎉 GLOBAL AUTOPLAY TRIGGERED (after wait) - SUCCESS!')
+              })
+              .catch((e: any) => {
+                console.error('❌ Global autoplay failed:', e.message)
+              })
+          }
+        }, 50)
+        
+        // Timeout after 5 seconds
+        setTimeout(() => clearInterval(checkReady), 5000)
+      }
+    } catch (e: any) {
+      console.error('❌ Global autoplay error:', e.message)
+    }
+  }
+
+  // Register the play function globally
+  useEffect(() => {
+    setGlobalAudioPlayTrigger(playAudio)
+    return () => {
+      setGlobalAudioPlayTrigger(null)
+    }
+  }, [autoPlay, audioTrackId])
 
   // Listen for session_joined event to trigger immediate autoplay
   useEffect(() => {
@@ -108,6 +164,7 @@ export default function ChantPlayer({
 
     const handleCanPlay = () => {
       console.log('✅ Audio can play, readyState:', audio.readyState)
+      setAudioElementRef(audio)
       if (onAudioElementReady) {
         onAudioElementReady(audio)
       }

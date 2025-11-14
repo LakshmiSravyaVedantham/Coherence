@@ -22,14 +22,26 @@ export default function WelcomeView() {
     setShowIntentionPicker(true)
   }
 
-  const handleJoin = (intention?: { category: string; note?: string }) => {
+  const handleJoin = async (intention?: { category: string; note?: string }) => {
     // Store intention for session history
     if (intention) {
       localStorage.setItem('sync_last_intention', intention.category)
     }
+    
+    // Mark user interaction immediately (before async operations)
+    localStorage.setItem('sync_user_interacted', 'true')
+    
+    // Join session
     joinSession(intention, selectedChant?.id)
     setShowIntentionPicker(false)
     setSelectedChant(null)
+    
+    // Trigger autoplay immediately after user interaction
+    // This is within the user interaction context, so browsers will allow it
+    setTimeout(async () => {
+      const { triggerGlobalAudioPlay } = await import('@/components/ChantPlayer')
+      await triggerGlobalAudioPlay()
+    }, 200)
   }
 
   return (

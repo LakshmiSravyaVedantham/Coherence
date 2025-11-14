@@ -25,11 +25,14 @@ import IntentionResonance from './IntentionResonance'
 import EEGIntegration from './EEGIntegration'
 import EMFieldMeasurement from './EMFieldMeasurement'
 import QuantumEntanglement from './QuantumEntanglement'
+import Leaderboard from './Leaderboard'
+import SessionSharing from './SessionSharing'
+import CommunityFeed from './CommunityFeed'
 import { getChantById } from '@/lib/chants'
 
 export default function SessionTabs() {
   const { currentSession, personalCoherence, heartRate } = useSessionStore()
-  const [activeTab, setActiveTab] = useState<'coherence' | 'analytics' | 'research'>('coherence')
+  const [activeTab, setActiveTab] = useState<'coherence' | 'analytics' | 'social' | 'research'>('coherence')
 
   if (!currentSession) return null
 
@@ -46,6 +49,7 @@ export default function SessionTabs() {
   const tabs = [
     { id: 'coherence' as const, label: 'Chant & Coherence', emoji: '🕉️' },
     { id: 'analytics' as const, label: 'Analytics', emoji: '📊' },
+    { id: 'social' as const, label: 'Social', emoji: '👥' },
     { id: 'research' as const, label: 'Research', emoji: '🔬' },
   ]
 
@@ -186,6 +190,14 @@ export default function SessionTabs() {
               </>
             )}
             {currentSession.participantCount > 3 && <HubDetection />}
+          </div>
+        )}
+
+        {activeTab === 'social' && (
+          <div className="space-y-6">
+            <Leaderboard />
+            <SessionSharing />
+            <CommunityFeed />
           </div>
         )}
 
