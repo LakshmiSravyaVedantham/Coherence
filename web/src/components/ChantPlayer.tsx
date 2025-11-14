@@ -34,7 +34,7 @@ export default function ChantPlayer({
     const chant = getChantById(audioTrackId)
     const audioPath = chant ? getChantAudioPath(chant) : `/audio/${audioTrackId}.mp3`
     
-    console.log('Loading audio:', audioPath)
+    console.log('🎵 Loading audio:', audioPath)
     
     // Reset and load new audio
     audio.pause()
@@ -42,7 +42,7 @@ export default function ChantPlayer({
     audio.load()
     setCurrentTime(0)
     setIsPlaying(false)
-    setHasAttemptedAutoplay(false) // Reset autoplay attempt for new track
+    setHasAttemptedAutoplay(false)
 
     const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime)
@@ -53,7 +53,7 @@ export default function ChantPlayer({
 
     const handleLoadedMetadata = () => {
       setDuration(audio.duration)
-      console.log('Audio metadata loaded, duration:', audio.duration)
+      console.log('✅ Audio metadata loaded, duration:', audio.duration)
     }
 
     const handleEnded = () => {
@@ -61,62 +61,59 @@ export default function ChantPlayer({
       setCurrentTime(0)
     }
 
-    const attemptAutoplay = async () => {
-      const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
-      console.log('Attempting autoplay, userInteracted:', userInteracted, 'autoPlay:', autoPlay, 'hasAttempted:', hasAttemptedAutoplay)
+    const handleCanPlay = () => {
+      console.log('✅ Audio can play, readyState:', audio.readyState)
+      if (onAudioElementReady) {
+        onAudioElementReady(audio)
+      }
+    }
+
+    const handleCanPlayThrough = async () => {
+      console.log('✅✅ Audio can play through, readyState:', audio.readyState)
       
-      if (autoPlay && userInteracted && !hasAttemptedAutoplay) {
-        setHasAttemptedAutoplay(true)
-        try {
-          // Wait a bit to ensure audio is ready
-          if (audio.readyState >= 3) { // HAVE_FUTURE_DATA
-            await audio.play()
-            setIsPlaying(true)
-            console.log('✅ Autoplay successful!')
-          } else {
-            // Wait for audio to be ready
-            const playWhenReady = async () => {
-              if (audio.readyState >= 3) {
-                try {
-                  await audio.play()
-                  setIsPlaying(true)
-                  console.log('✅ Autoplay successful after waiting!')
-                } catch (e) {
-                  console.error('❌ Autoplay failed after waiting:', e)
-                }
-              } else {
-                // Try again in 100ms
-                setTimeout(playWhenReady, 100)
+      // Try autoplay when audio is fully ready
+      if (autoPlay && !hasAttemptedAutoplay) {
+        const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
+        console.log('🎯 Attempting autoplay - userInteracted:', userInteracted, 'readyState:', audio.readyState)
+        
+        if (userInteracted) {
+          setHasAttemptedAutoplay(true)
+          try {
+            // Use a small delay to ensure everything is ready
+            setTimeout(async () => {
+              try {
+                await audio.play()
+                setIsPlaying(true)
+                console.log('🎉 AUTOPLAY SUCCESSFUL!')
+              } catch (e: any) {
+                console.error('❌ Autoplay failed:', e.name, e.message)
+                setHasAttemptedAutoplay(false) // Allow retry
               }
-            }
-            playWhenReady()
+            }, 100)
+          } catch (e: any) {
+            console.error('❌ Autoplay setup failed:', e)
           }
-        } catch (e: any) {
-          console.error('❌ Autoplay prevented:', e.name, e.message)
-          // Don't show error to user, just let them click play button
+        } else {
+          console.log('⚠️ User has not interacted yet - autoplay will be blocked')
         }
       }
     }
 
-    const handleCanPlay = () => {
-      console.log('Audio can play, readyState:', audio.readyState)
-      if (onAudioElementReady) {
-        onAudioElementReady(audio)
+    // Try immediate autoplay if audio is already loaded
+    if (audio.readyState >= 3 && autoPlay && !hasAttemptedAutoplay) {
+      const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
+      if (userInteracted) {
+        setHasAttemptedAutoplay(true)
+        audio.play()
+          .then(() => {
+            setIsPlaying(true)
+            console.log('🎉 IMMEDIATE AUTOPLAY SUCCESSFUL!')
+          })
+          .catch((e: any) => {
+            console.error('❌ Immediate autoplay failed:', e.name, e.message)
+            setHasAttemptedAutoplay(false)
+          })
       }
-      attemptAutoplay()
-    }
-
-    const handleCanPlayThrough = () => {
-      console.log('Audio can play through, readyState:', audio.readyState)
-      attemptAutoplay()
-    }
-
-    // Notify parent when audio element is ready
-    if (audio.readyState >= 2) {
-      if (onAudioElementReady) {
-        onAudioElementReady(audio)
-      }
-      attemptAutoplay()
     }
 
     audio.addEventListener('timeupdate', handleTimeUpdate)
@@ -132,7 +129,7 @@ export default function ChantPlayer({
       audio.removeEventListener('canplay', handleCanPlay)
       audio.removeEventListener('canplaythrough', handleCanPlayThrough)
     }
-  }, [audioTrackId, onTimeUpdate, onAudioElementReady, autoPlay])
+  }, [audioTrackId, onTimeUpdate, onAudioElementReady, autoPlay, hasAttemptedAutoplay])
 
   const togglePlay = async () => {
     const audio = audioRef.current

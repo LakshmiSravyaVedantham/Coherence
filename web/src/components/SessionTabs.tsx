@@ -16,7 +16,6 @@ import IntentionAwareness from './IntentionAwareness'
 import SynchronizationNetwork from './SynchronizationNetwork'
 import PairwiseSyncAnalysis from './PairwiseSyncAnalysis'
 import HubDetection from './HubDetection'
-import IntentionResonance from './IntentionResonance'
 import AudioEnhancements from './AudioEnhancements'
 import CoherenceAchievements from './CoherenceAchievements'
 import CoherenceCoach from './CoherenceCoach'
@@ -158,7 +157,6 @@ export default function SessionTabs() {
               </>
             )}
             {currentSession.participantCount > 3 && <HubDetection />}
-            <IntentionResonance />
             <CoherenceAchievements />
           </div>
         )}
@@ -176,7 +174,6 @@ export default function SessionTabs() {
               </>
             )}
             {currentSession.participantCount > 3 && <HubDetection />}
-            <IntentionResonance />
           </div>
         )}
 
