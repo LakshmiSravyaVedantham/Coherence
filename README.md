@@ -54,6 +54,29 @@ coherence_cursor/
 
 See individual README files in each directory for setup instructions.
 
+## Deployment
+
+**Quick Deploy to Vercel:**
+
+1. **Deploy Backend** (choose one):
+   - **Railway** (recommended): Connect GitHub repo, select `backend` directory, add env vars
+   - **Render**: Create web service, set root to `backend`, enable WebSockets
+   - **Fly.io**: `cd backend && fly launch`
+
+2. **Deploy Frontend to Vercel**:
+   ```bash
+   npm i -g vercel
+   vercel login
+   vercel --cwd web
+   ```
+   Or use Vercel dashboard: Import repo → Set root to `web` → Deploy
+
+3. **Set Environment Variables**:
+   - Frontend: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_WS_URL`
+   - Backend: `SUPABASE_URL`, `SUPABASE_KEY`, `PORT`, `CORS_ORIGIN`
+
+📖 **Full deployment guide**: See [DEPLOYMENT.md](./DEPLOYMENT.md)
+
 ## Research Focus
 
 This platform is designed as a research instrument to study:
