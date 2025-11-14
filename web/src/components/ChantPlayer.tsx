@@ -78,20 +78,24 @@ export default function ChantPlayer({
         
         if (userInteracted) {
           setHasAttemptedAutoplay(true)
+          // Try playing immediately - this should work after user interaction
           try {
-            // Use a small delay to ensure everything is ready
+            await audio.play()
+            setIsPlaying(true)
+            console.log('🎉 AUTOPLAY SUCCESSFUL!')
+          } catch (e: any) {
+            console.error('❌ Autoplay failed:', e.name, e.message)
+            // If it fails, try again after a short delay
             setTimeout(async () => {
               try {
                 await audio.play()
                 setIsPlaying(true)
-                console.log('🎉 AUTOPLAY SUCCESSFUL!')
-              } catch (e: any) {
-                console.error('❌ Autoplay failed:', e.name, e.message)
-                setHasAttemptedAutoplay(false) // Allow retry
+                console.log('🎉 AUTOPLAY SUCCESSFUL (retry)!')
+              } catch (e2: any) {
+                console.error('❌ Autoplay retry also failed:', e2.name, e2.message)
+                setHasAttemptedAutoplay(false) // Allow manual play
               }
-            }, 100)
-          } catch (e: any) {
-            console.error('❌ Autoplay setup failed:', e)
+            }, 200)
           }
         } else {
           console.log('⚠️ User has not interacted yet - autoplay will be blocked')
@@ -99,22 +103,31 @@ export default function ChantPlayer({
       }
     }
 
-    // Try immediate autoplay if audio is already loaded
-    if (audio.readyState >= 3 && autoPlay && !hasAttemptedAutoplay) {
-      const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
-      if (userInteracted) {
-        setHasAttemptedAutoplay(true)
-        audio.play()
-          .then(() => {
-            setIsPlaying(true)
-            console.log('🎉 IMMEDIATE AUTOPLAY SUCCESSFUL!')
-          })
-          .catch((e: any) => {
-            console.error('❌ Immediate autoplay failed:', e.name, e.message)
-            setHasAttemptedAutoplay(false)
-          })
+    // Try immediate autoplay if audio is already loaded (for fast connections)
+    let immediateTimeout: NodeJS.Timeout | null = null
+    const tryImmediateAutoplay = () => {
+      if (audio.readyState >= 3 && autoPlay && !hasAttemptedAutoplay) {
+        const userInteracted = localStorage.getItem('sync_user_interacted') === 'true'
+        if (userInteracted) {
+          setHasAttemptedAutoplay(true)
+          audio.play()
+            .then(() => {
+              setIsPlaying(true)
+              console.log('🎉 IMMEDIATE AUTOPLAY SUCCESSFUL!')
+            })
+            .catch((e: any) => {
+              console.error('❌ Immediate autoplay failed:', e.name, e.message)
+              setHasAttemptedAutoplay(false)
+            })
+        }
       }
     }
+
+    // Try immediately if ready
+    tryImmediateAutoplay()
+    
+    // Also try after a short delay in case readyState changes
+    immediateTimeout = setTimeout(tryImmediateAutoplay, 500)
 
     audio.addEventListener('timeupdate', handleTimeUpdate)
     audio.addEventListener('loadedmetadata', handleLoadedMetadata)
@@ -123,6 +136,7 @@ export default function ChantPlayer({
     audio.addEventListener('canplaythrough', handleCanPlayThrough)
 
     return () => {
+      if (immediateTimeout) clearTimeout(immediateTimeout)
       audio.removeEventListener('timeupdate', handleTimeUpdate)
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
       audio.removeEventListener('ended', handleEnded)

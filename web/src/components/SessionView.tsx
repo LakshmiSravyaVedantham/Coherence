@@ -23,7 +23,6 @@ import CoherenceComparison from './CoherenceComparison'
 import PairwiseSyncAnalysis from './PairwiseSyncAnalysis'
 import HubDetection from './HubDetection'
 import AudioEnhancements from './AudioEnhancements'
-import IntentionResonance from './IntentionResonance'
 import SessionTabs from './SessionTabs'
 
 export default function SessionView() {
