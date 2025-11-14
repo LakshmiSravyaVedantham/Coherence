@@ -53,6 +53,16 @@ export default function Home() {
               >
                 📊 Profile
               </button>
+              <button
+                onClick={() => setView('settings')}
+                className={`px-4 py-2 rounded-lg transition-colors whitespace-nowrap ${
+                  view === 'settings'
+                    ? 'bg-purple-600 text-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                ⚙️ Settings
+              </button>
             </div>
           </div>
         </nav>
