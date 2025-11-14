@@ -32,6 +32,7 @@ import AudioEqualizer from './AudioEqualizer'
 import AdvancedInsights from './AdvancedInsights'
 import AudioDebug from './AudioDebug'
 import P5Visualization from './P5Visualization'
+import ParticipantIndicators from './ParticipantIndicators'
 import { getChantById } from '@/lib/chants'
 
 export default function SessionTabs() {
