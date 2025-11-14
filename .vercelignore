@@ -1,0 +1,12 @@
+node_modules
+.next
+backend
+ios
+ml
+shared
+docs
+*.log
+.env
+.env.local
+.env*.local
+
