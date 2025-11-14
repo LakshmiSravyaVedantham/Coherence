@@ -74,6 +74,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       
       // Mark that user has interacted - this allows autoplay
       localStorage.setItem('sync_user_interacted', 'true')
+      
+      // Dispatch custom event to trigger autoplay immediately
+      // This happens right after user clicks "Join Session", so autoplay should work
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('sync_session_joined', { 
+          detail: { audioTrack: data.audioTrack } 
+        }))
+      }
     })
 
     sock.on('group_metrics_update', (data: { groupMetrics: SessionInfo['groupMetrics'] }) => {

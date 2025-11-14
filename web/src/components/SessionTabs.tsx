@@ -21,6 +21,7 @@ import CoherenceAchievements from './CoherenceAchievements'
 import CoherenceCoach from './CoherenceCoach'
 import NonLocalCorrelation from './NonLocalCorrelation'
 import IntentionInfluence from './IntentionInfluence'
+import IntentionResonance from './IntentionResonance'
 import EEGIntegration from './EEGIntegration'
 import EMFieldMeasurement from './EMFieldMeasurement'
 import QuantumEntanglement from './QuantumEntanglement'
@@ -177,8 +178,7 @@ export default function SessionTabs() {
           <div className="space-y-6">
             <RealTimeStats />
             <CoherenceInsights />
-            <CoherenceComparison />
-            <IntentionAwareness />
+            <IntentionResonance />
             {currentSession.participantCount > 1 && (
               <>
                 <SynchronizationNetwork />

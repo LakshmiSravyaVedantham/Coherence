@@ -26,6 +26,51 @@ export default function ChantPlayer({
   const [volume, setVolume] = useState(1)
   const [hasAttemptedAutoplay, setHasAttemptedAutoplay] = useState(false)
 
+  // Listen for session_joined event to trigger immediate autoplay
+  useEffect(() => {
+    const handleSessionJoined = async () => {
+      const audio = audioRef.current
+      if (!audio || !autoPlay || hasAttemptedAutoplay) return
+      
+      console.log('🎯 Session joined event received - attempting immediate autoplay')
+      
+      // Wait a bit for audio to be ready
+      const tryPlay = async () => {
+        if (audio.readyState >= 2) { // HAVE_CURRENT_DATA or higher
+          try {
+            await audio.play()
+            setIsPlaying(true)
+            setHasAttemptedAutoplay(true)
+            console.log('🎉 IMMEDIATE AUTOPLAY FROM SESSION JOINED EVENT!')
+          } catch (e: any) {
+            console.log('⚠️ Immediate autoplay from event failed, will retry:', e.message)
+            // Retry after a short delay
+            setTimeout(async () => {
+              try {
+                await audio.play()
+                setIsPlaying(true)
+                setHasAttemptedAutoplay(true)
+                console.log('🎉 AUTOPLAY SUCCESSFUL (retry from event)!')
+              } catch (e2: any) {
+                console.error('❌ Autoplay retry from event failed:', e2.message)
+              }
+            }, 300)
+          }
+        } else {
+          // Wait for audio to be ready
+          setTimeout(tryPlay, 100)
+        }
+      }
+      
+      tryPlay()
+    }
+
+    window.addEventListener('sync_session_joined', handleSessionJoined)
+    return () => {
+      window.removeEventListener('sync_session_joined', handleSessionJoined)
+    }
+  }, [autoPlay, hasAttemptedAutoplay])
+
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
