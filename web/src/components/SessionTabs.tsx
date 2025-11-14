@@ -18,7 +18,6 @@ import PairwiseSyncAnalysis from './PairwiseSyncAnalysis'
 import HubDetection from './HubDetection'
 import IntentionResonance from './IntentionResonance'
 import AudioEnhancements from './AudioEnhancements'
-import SessionRecorder from './SessionRecorder'
 import CoherenceAchievements from './CoherenceAchievements'
 import CoherenceCoach from './CoherenceCoach'
 import NonLocalCorrelation from './NonLocalCorrelation'
@@ -189,7 +188,6 @@ export default function SessionTabs() {
             )}
             {currentSession.participantCount > 3 && <HubDetection />}
             <IntentionResonance />
-            <SessionRecorder />
           </div>
         )}
 
