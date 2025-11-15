@@ -52,14 +52,14 @@ export default function EEGIntegration() {
   }))
 
   const currentState = eegData.length > 0 ? eegData[eegData.length - 1] : null
-  const dominantWave =
+  const dominantWave: string | null =
     currentState
-      ? Object.entries({
+      ? (Object.entries({
           alpha: currentState.alpha,
           beta: currentState.beta,
           theta: currentState.theta,
           delta: currentState.delta,
-        }).sort(([, a], [, b]) => b - a)[0][0]
+        }).sort(([, a], [, b]) => b - a)[0][0] as string)
       : null
 
   const getStateInfo = (wave: string) => {

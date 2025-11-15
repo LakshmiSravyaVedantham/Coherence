@@ -55,7 +55,7 @@ export default function KeyboardShortcutsHelp() {
 
   if (!showHelp) return null
 
-  const shortcuts = [
+  const shortcuts: Array<{ key: string; description: string; modifier?: 'ctrl' | 'alt' | 'shift' }> = [
     { key: '?', description: 'Show/hide this help', modifier: undefined },
     { key: 'Esc', description: 'Close modals', modifier: undefined },
     { key: 'Space', description: 'Play/pause audio', modifier: undefined },
@@ -82,7 +82,7 @@ export default function KeyboardShortcutsHelp() {
             <div key={index} className="flex items-center justify-between py-2 border-b border-gray-700">
               <span className="text-gray-300">{shortcut.description}</span>
               <kbd className="px-2 py-1 bg-gray-900 rounded text-sm text-purple-400">
-                {shortcut.modifier && `${shortcut.modifier.toUpperCase()} + `}
+                {shortcut.modifier ? `${shortcut.modifier.toUpperCase()} + ` : ''}
                 {shortcut.key}
               </kbd>
             </div>
