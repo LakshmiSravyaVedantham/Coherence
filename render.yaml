@@ -7,7 +7,6 @@ services:
     buildCommand: |
       cd ../shared && npm install && npm run build &&
       cd ../backend && npm install && npm run build
-    installCommand: npm install
     startCommand: npm start
     plan: free  # Free tier (spins down after 15 min inactivity)
     dockerfilePath: ""  # Explicitly disable Docker
