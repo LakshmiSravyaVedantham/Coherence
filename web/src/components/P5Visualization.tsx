@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSessionStore } from '@/store/sessionStore'
-import p5 from 'p5'
 
 interface P5VisualizationProps {
   className?: string
@@ -10,120 +9,99 @@ interface P5VisualizationProps {
 
 export default function P5Visualization({ className = '' }: P5VisualizationProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const p5InstanceRef = useRef<p5 | null>(null)
+  const p5InstanceRef = useRef<any>(null)
+  const [p5Loaded, setP5Loaded] = useState(false)
   const { currentSession, personalCoherence } = useSessionStore()
-  const groupCoherence = currentSession?.groupMetrics?.averageCoherence || 0
 
+  // Dynamically load p5.js only on client side
   useEffect(() => {
-    if (!containerRef.current) return
+    if (typeof window === 'undefined' || p5Loaded) return
 
-    const sketch = (p: p5) => {
-      let t = 0
-      let w = 400
-      let m = 200
-      let img: p5.Image | null = null
+    import('p5').then((p5Module) => {
+      const p5 = p5Module.default
+      setP5Loaded(true)
 
-      p.setup = () => {
-        const container = containerRef.current
-        if (!container) return
-        
-        const size = Math.min(container.offsetWidth, container.offsetHeight) || 400
-        w = size
-        m = w / 2
-        p.createCanvas(w, w)
-      }
+      if (containerRef.current && !p5InstanceRef.current) {
+        const sketch = (p: any) => {
+          let t = 0
+          let img: any = null
+          const w = 400
+          const m = w / 2
 
-      p.draw = () => {
-        // Get coherence values for color adjustment
-        const groupCoherenceValue = currentSession?.groupMetrics?.averageCoherence || 0
-        const personalCoherenceValue = personalCoherence || 0
-        const avgCoherence = (groupCoherenceValue + personalCoherenceValue) / 2
+          p.setup = () => {
+            p.createCanvas(w, w)
+          }
 
-        // Adjust stroke color based on coherence
-        const colors = {
-          low: [239, 68, 68],    // red
-          medium: [234, 179, 8], // yellow
-          high: [34, 197, 94],    // green
-        }
-        
-        let color: number[]
-        if (avgCoherence < 40) {
-          color = colors.low
-        } else if (avgCoherence < 60) {
-          color = colors.medium
-        } else {
-          color = colors.high
-        }
-        
-        const alpha = 18 + Math.floor((avgCoherence / 100) * 28) // 18-46 alpha based on coherence
+          p.draw = () => {
+            // Get coherence values for color adjustment
+            const groupCoherenceValue = currentSession?.groupMetrics?.averageCoherence || 0
+            const personalCoherenceValue = personalCoherence || 0
+            const avgCoherence = (groupCoherenceValue + personalCoherenceValue) / 2
 
-        // Exact visualization code as provided
-        // t||createCanvas(w=400,w) - handled in setup
-        p.clear()
-        m = w / 2
-        
-        // Main drawing loop - exact code structure from user
-        // for(t+=PI/240,i=2e4;i--;)
-        t += p.PI / 240
-        for (let i = 20000; i >= 0; i--) {
-          // i>14? (draw points)
-          if (i > 14) {
-            const k = (i % 50) - 25
-            const e = i / 1100
-            const mag = p.sqrt(k * k + e * e)
-            const d = 5 * p.cos(mag - t + (i % 2))
-            
-            // Use coherence-based color instead of stroke(w,46)
-            p.stroke(color[0], color[1], color[2], alpha)
-            
-            // point(k+k*d/6*sin(d+e/3+t)+m,90+e*d-e/d*2*cos(d+t)+m)
-            const x = k + (k * d / 6) * p.sin(d + e / 3 + t) + m
-            const y = 90 + e * d - (e / d) * 2 * p.cos(d + t) + m
-            p.point(x, y)
-          } 
-          // i^14? (i !== 14) rotate(PI/7).image(p,-m,-m)
-          else if (i !== 14) {
-            p.rotate(p.PI / 7)
-            if (img) {
-              p.image(img, -m, -m)
+            // Adjust color based on coherence (purple/blue spectrum)
+            const colorIntensity = Math.min(avgCoherence / 100, 1)
+            const color = [
+              Math.floor(100 + colorIntensity * 155), // R: 100-255
+              Math.floor(50 + colorIntensity * 100), // G: 50-150
+              Math.floor(200 + colorIntensity * 55), // B: 200-255
+            ]
+            const alpha = 18 + Math.floor((avgCoherence / 100) * 28) // 18-46 alpha based on coherence
+
+            // Exact visualization code as provided
+            p.clear()
+            t += p.PI / 240
+
+            for (let i = 20000; i >= 0; i--) {
+              if (i > 14) {
+                const k = (i % 50) - 25
+                const e = i / 1100
+                const mag = p.sqrt(k * k + e * e)
+                const d = 5 * p.cos(mag - t + (i % 2))
+
+                // Use coherence-based color instead of stroke(w,46)
+                p.stroke(color[0], color[1], color[2], alpha)
+
+                const x = k + (k * d / 6) * p.sin(d + e / 3 + t) + m
+                const y = 90 + e * d - (e / d) * 2 * p.cos(d + t) + m
+                p.point(x, y)
+              } else if (i !== 14) {
+                p.rotate(p.PI / 7)
+                if (img) {
+                  p.image(img, -m, -m)
+                } else {
+                  img = p.get()
+                  p.background(9)
+                  p.translate(m, m)
+                }
+              }
             }
-          } 
-          // else: (p=get())+background(9).translate(m,m)
-          else {
-            img = p.get()
-            p.background(9)
-            p.translate(m, m)
           }
         }
+
+        p5InstanceRef.current = new p5(sketch, containerRef.current)
       }
+    }).catch((error) => {
+      console.error('Failed to load p5.js:', error)
+    })
+  }, [p5Loaded, currentSession, personalCoherence])
 
-      p.windowResized = () => {
-        const container = containerRef.current
-        if (!container) return
-        
-        const size = Math.min(container.offsetWidth, container.offsetHeight) || 400
-        w = size
-        m = w / 2
-        p.resizeCanvas(w, w)
-      }
-    }
-
-    p5InstanceRef.current = new p5(sketch, containerRef.current)
-
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
       if (p5InstanceRef.current) {
         p5InstanceRef.current.remove()
         p5InstanceRef.current = null
       }
     }
-  }, [currentSession, personalCoherence, groupCoherence])
+  }, [])
 
-  return (
-    <div
-      ref={containerRef}
-      className={`w-full h-full ${className}`}
-      style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, rgba(0,0,0,0.9) 100%)' }}
-    />
-  )
+  if (!p5Loaded) {
+    return (
+      <div className={`${className} flex items-center justify-center bg-gray-900 rounded-lg`}>
+        <div className="text-gray-400 text-sm">Loading visualization...</div>
+      </div>
+    )
+  }
+
+  return <div ref={containerRef} className={className} />
 }
-
