@@ -1,0 +1,33 @@
+# Single Service Deployment - One URL for Everything
+# This deploys only the backend, which will serve the frontend
+
+services:
+  # Combined Service (Backend + Frontend)
+  - type: web
+    name: sync-app
+    env: node
+    rootDir: backend
+    buildCommand: |
+      # Build frontend first
+      cd ../web && npm install && npm run build
+      # Then build backend
+      cd ../backend && npm install && npm run build
+    startCommand: npm start
+    plan: starter
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3002
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: FRONTEND_BUILD_PATH
+        value: ../web/.next
+    healthCheckPath: /health
+
