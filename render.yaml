@@ -4,7 +4,9 @@ services:
     name: sync-backend
     env: node
     rootDir: backend
-    buildCommand: npm install && npm run build
+    buildCommand: |
+      cd ../shared && npm install && npm run build &&
+      cd ../backend && npm install && npm run build
     startCommand: npm start
     plan: free  # Free tier (spins down after 15 min inactivity)
     dockerfilePath: ""  # Explicitly disable Docker

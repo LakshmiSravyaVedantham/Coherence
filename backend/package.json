@@ -29,6 +29,12 @@
     "@types/uuid": "^9.0.7",
     "typescript": "^5.3.3",
     "tsx": "^4.7.0"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "cd ../shared && npm install && npm run build && cd ../backend && tsc",
+    "start": "node dist/index.js",
+    "migrate": "node dist/db/migrate.js"
   }
 }
 
