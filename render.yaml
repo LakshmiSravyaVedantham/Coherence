@@ -1,5 +1,5 @@
 services:
-  # Backend Service
+  # Backend Service - Handles API and WebSocket
   - type: web
     name: sync-backend
     env: node
@@ -16,14 +16,14 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
+      # CORS automatically set from frontend URL
       - key: CORS_ORIGIN
         fromService:
           type: web
           name: sync-frontend
           property: host
-    healthCheckPath: /health
 
-  # Frontend Service
+  # Frontend Service - Next.js App
   - type: web
     name: sync-frontend
     env: node
@@ -31,7 +31,6 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm start
     plan: starter
-    staticPublishPath: web/.next
     envVars:
       - key: NODE_ENV
         value: production
@@ -39,11 +38,13 @@ services:
         sync: false
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
         sync: false
+      # Backend URL automatically set from backend service
       - key: NEXT_PUBLIC_BACKEND_URL
         fromService:
           type: web
           name: sync-backend
           property: host
+      # WebSocket URL automatically set (secure wss://)
       - key: NEXT_PUBLIC_WS_URL
         fromService:
           type: web

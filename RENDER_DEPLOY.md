@@ -1,96 +1,84 @@
-# Deploy Full App to Render - Quick Guide
+# Deploy Full App to Render - Simple Guide
 
-This guide will help you deploy both the frontend and backend to Render in one go.
+Deploy both frontend and backend in 3 easy steps!
 
 ## Prerequisites
 
-1. **Render Account**: Sign up at [render.com](https://render.com) (free tier available)
-2. **GitHub Repository**: Your code should be on GitHub
-3. **Supabase Project**: Already set up (see SETUP.md)
+- ✅ Render account: [render.com](https://render.com) (free tier works!)
+- ✅ GitHub repo: Your code on GitHub
+- ✅ Supabase project: Already set up
 
-## Step-by-Step Deployment
+## 🚀 3-Step Deployment
 
-### 1. Connect GitHub to Render
+### Step 1: Connect & Deploy
 
 1. Go to [render.com/dashboard](https://dashboard.render.com)
 2. Click **"New +"** → **"Blueprint"**
-3. Connect your GitHub account if not already connected
-4. Select your repository: `LakshmiSravya123/Coherence`
+3. Connect GitHub → Select your repo
+4. Render auto-detects `render.yaml` and creates both services
 
-### 2. Render Auto-Detects Configuration
+**That's it for setup!** Render creates:
+- `sync-backend` - Your API & WebSocket server
+- `sync-frontend` - Your Next.js app
 
-Render will automatically detect the `render.yaml` file in your repository root and create both services:
-- **sync-backend** (Node.js backend)
-- **sync-frontend** (Next.js frontend)
+### Step 2: Add Environment Variables
 
-### 3. Add Environment Variables
+You only need to add **4 variables** (Render handles the rest automatically):
 
-Before deploying, add these environment variables in Render dashboard:
-
-#### For Backend Service (sync-backend):
-
-1. Go to your backend service settings
-2. Navigate to **"Environment"** tab
-3. Add these variables:
-
-```
-SUPABASE_URL=https://xxxxx.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
-NODE_ENV=production
-PORT=3002
-```
-
-#### For Frontend Service (sync-frontend):
-
-1. Go to your frontend service settings
-2. Navigate to **"Environment"** tab
-3. Add these variables:
-
-```
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
-NODE_ENV=production
-```
-
-**Note**: `NEXT_PUBLIC_BACKEND_URL` and `NEXT_PUBLIC_WS_URL` are automatically set by Render from the backend service URL.
-
-### 4. Deploy
-
-1. Click **"Apply"** or **"Save Changes"** on both services
-2. Render will automatically:
-   - Build both services
-   - Deploy them
-   - Link frontend to backend URLs
-   - Set up WebSocket connections
-
-### 5. Get Your URLs
-
-After deployment completes:
-
-1. **Backend URL**: `https://sync-backend.onrender.com` (or your custom domain)
-2. **Frontend URL**: `https://sync-frontend.onrender.com` (or your custom domain)
-
-The frontend will automatically use the backend URL for API and WebSocket connections.
-
-## Environment Variables Summary
-
-### Backend (`sync-backend`)
+#### Backend Service (`sync-backend`)
+Go to service → **Environment** tab → Add:
 ```
 SUPABASE_URL=https://xxxxx.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-NODE_ENV=production
-PORT=3002
-CORS_ORIGIN=https://sync-frontend.onrender.com (auto-set)
 ```
 
-### Frontend (`sync-frontend`)
+#### Frontend Service (`sync-frontend`)
+Go to service → **Environment** tab → Add:
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-NEXT_PUBLIC_BACKEND_URL=https://sync-backend.onrender.com (auto-set)
-NEXT_PUBLIC_WS_URL=wss://sync-backend.onrender.com (auto-set)
-NODE_ENV=production
 ```
+
+**✨ Auto-configured (you don't set these):**
+- `NEXT_PUBLIC_BACKEND_URL` - Auto-set from backend URL
+- `NEXT_PUBLIC_WS_URL` - Auto-set as `wss://` from backend
+- `CORS_ORIGIN` - Auto-set from frontend URL
+
+### Step 3: Deploy & Done! 🎉
+
+1. Click **"Save Changes"** on both services
+2. Render automatically:
+   - ✅ Builds both services
+   - ✅ Links them together
+   - ✅ Sets up WebSocket connections
+   - ✅ Configures CORS
+
+**Your URLs:**
+- Frontend: `https://sync-frontend.onrender.com` ← **This is your main app URL!**
+- Backend: `https://sync-backend.onrender.com` ← (Auto-connected, you don't need this)
+
+**That's it!** Your app is live. Just use the frontend URL - everything is connected automatically.
+
+## 📋 Quick Reference
+
+### What You Set (4 variables total):
+
+**Backend:**
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+**Frontend:**
+- `NEXT_PUBLIC_SUPABASE_URL` (same as SUPABASE_URL)
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+### What Render Sets Automatically:
+- ✅ `NEXT_PUBLIC_BACKEND_URL` → Backend URL
+- ✅ `NEXT_PUBLIC_WS_URL` → `wss://` backend URL
+- ✅ `CORS_ORIGIN` → Frontend URL
+- ✅ `NODE_ENV` → `production`
+- ✅ `PORT` → `3002`
+
+**You only need to set 4 Supabase variables - Render does the rest!**
 
 ## Post-Deployment Checklist
 

@@ -1,6 +1,6 @@
-# Render Environment Variables - Complete List
+# Render Environment Variables - Simple Guide
 
-This document lists all environment variables needed for deploying the Sync app to Render.
+**TL;DR**: You only need to set **4 variables** - Render handles the rest automatically!
 
 ## Backend Service (`sync-backend`)
 
@@ -61,23 +61,22 @@ These are automatically configured by Render from the backend service:
 
 ---
 
-## Quick Setup Checklist
+## ✅ Simple Checklist (Only 4 Variables!)
 
-### Backend Service
+### Backend Service (`sync-backend`)
 - [ ] `SUPABASE_URL` = Your Supabase project URL
 - [ ] `SUPABASE_SERVICE_ROLE_KEY` = Your Supabase service role key
-- [ ] `NODE_ENV` = `production`
-- [ ] `PORT` = `3002` (optional, Render sets this automatically)
 
-### Frontend Service
-- [ ] `NEXT_PUBLIC_SUPABASE_URL` = Your Supabase project URL (same as backend)
+### Frontend Service (`sync-frontend`)
+- [ ] `NEXT_PUBLIC_SUPABASE_URL` = Your Supabase project URL (same as above)
 - [ ] `NEXT_PUBLIC_SUPABASE_ANON_KEY` = Your Supabase anon key
-- [ ] `NODE_ENV` = `production`
 
-### Auto-Configured (No Action Needed)
-- [ ] `CORS_ORIGIN` (backend) - Auto-set from frontend URL
-- [ ] `NEXT_PUBLIC_BACKEND_URL` (frontend) - Auto-set from backend URL
-- [ ] `NEXT_PUBLIC_WS_URL` (frontend) - Auto-set from backend URL as `wss://`
+**That's it!** Render automatically sets:
+- ✅ `NEXT_PUBLIC_BACKEND_URL` → Backend URL
+- ✅ `NEXT_PUBLIC_WS_URL` → `wss://` Backend URL  
+- ✅ `CORS_ORIGIN` → Frontend URL
+- ✅ `NODE_ENV` → `production`
+- ✅ `PORT` → `3002`
 
 ---
 

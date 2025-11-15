@@ -56,17 +56,21 @@ See individual README files in each directory for setup instructions.
 
 ## Deployment
 
-### 🚀 Quick Deploy to Render (Easiest - Full App)
+### 🚀 Deploy to Render (3 Steps!)
 
-Deploy both frontend and backend in one go:
+1. **Connect**: Go to [render.com](https://render.com) → Create Blueprint → Connect GitHub
+2. **Configure**: Add 4 Supabase variables (see [RENDER_ENV_VARS.md](./RENDER_ENV_VARS.md))
+3. **Deploy**: Click deploy - Render handles the rest!
 
-1. **Sign up** at [render.com](https://render.com)
-2. **Create Blueprint** → Connect GitHub repo
-3. **Render auto-detects** `render.yaml` and creates both services
-4. **Add environment variables** (see [RENDER_DEPLOY.md](./RENDER_DEPLOY.md))
-5. **Deploy** - Done! 🎉
+**That's it!** Render automatically:
+- ✅ Creates both frontend & backend services
+- ✅ Links them together
+- ✅ Sets up WebSocket connections
+- ✅ Configures all URLs
 
-📖 **Full Render guide**: See [RENDER_DEPLOY.md](./RENDER_DEPLOY.md)
+📖 **Quick guides**: 
+- [RENDER_DEPLOY.md](./RENDER_DEPLOY.md) - Step-by-step deployment
+- [RENDER_ENV_VARS.md](./RENDER_ENV_VARS.md) - Environment variables (only 4 needed!)
 
 ### Alternative: Deploy Separately
 
