@@ -59,7 +59,7 @@ export function calculateGroupCoherence(
     high: 0,
   };
 
-  participants.forEach((p) => {
+    participants.forEach((p: SessionParticipant) => {
     if (p.currentCoherence < 40) {
       distribution.low++;
     } else if (p.currentCoherence < 60) {
