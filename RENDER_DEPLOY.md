@@ -94,10 +94,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 ### Docker Error: "failed to read dockerfile"
 
 **If you see this error:**
-- Render is trying to use Docker instead of Node.js
-- **Solution**: Make sure `render.yaml` uses `runtime: node` (not `env: node`)
-- Or manually set service to use "Node" environment in Render dashboard
-- Go to service → Settings → Environment → Select "Node"
+- Render detected a Dockerfile and is trying to use Docker instead of Node.js
+- **Solution 1**: Delete the service and recreate from Blueprint (recommended)
+- **Solution 2**: Manually set environment in Render dashboard:
+  - Go to service → Settings → Environment → Select **"Node"**
+  - Remove any Dockerfile path if shown
+  - Save and redeploy
+- **Solution 3**: The Dockerfile has been moved to `backend/Dockerfile.backup` to prevent auto-detection
 
 ### Build Failures
 

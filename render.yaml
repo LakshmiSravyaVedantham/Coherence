@@ -2,11 +2,12 @@ services:
   # Backend Service - Handles API and WebSocket
   - type: web
     name: sync-backend
-    runtime: node
+    env: node
     rootDir: backend
     buildCommand: npm install && npm run build
     startCommand: npm start
     plan: starter
+    dockerfilePath: ""  # Explicitly disable Docker
     envVars:
       - key: NODE_ENV
         value: production
@@ -26,11 +27,12 @@ services:
   # Frontend Service - Next.js App
   - type: web
     name: sync-frontend
-    runtime: node
+    env: node
     rootDir: web
     buildCommand: npm install && npm run build
     startCommand: npm start
     plan: starter
+    dockerfilePath: ""  # Explicitly disable Docker
     envVars:
       - key: NODE_ENV
         value: production
