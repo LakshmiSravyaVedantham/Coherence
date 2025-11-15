@@ -12,16 +12,16 @@ const defaultFallback = (
   </div>
 )
 
-export function createLazyComponent<P = {}>(
+export function createLazyComponent<P extends Record<string, any> = Record<string, any>>(
   importFunc: () => Promise<{ default: ComponentType<P> }>,
   fallback: React.ReactNode = defaultFallback
 ) {
   const LazyComponent = lazy(importFunc)
 
-  return function LazyWrapper(props: P) {
+  return function LazyWrapper(props: P & React.ComponentProps<typeof LazyComponent>) {
     return (
       <Suspense fallback={fallback}>
-        <LazyComponent {...props} />
+        <LazyComponent {...(props as any)} />
       </Suspense>
     )
   }
