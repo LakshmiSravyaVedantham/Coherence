@@ -31,7 +31,7 @@ services:
     name: sync-frontend
     env: node
     rootDir: web
-    buildCommand: npm install && npm run build
+    buildCommand: npm ci && npm run build
     startCommand: npm start
     plan: free  # Free tier (spins down after 15 min inactivity)
     dockerfilePath: ""  # Explicitly disable Docker
