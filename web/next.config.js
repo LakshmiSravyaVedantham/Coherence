@@ -15,6 +15,20 @@ const nextConfig = {
   },
   // Enable compression
   compress: true,
+  // Webpack config to handle client-side only libraries
+  webpack: (config, { isServer }) => {
+    // Fix for p5.js and other client-side only libraries
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        child_process: false,
+      }
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig
