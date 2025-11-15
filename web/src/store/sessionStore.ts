@@ -32,7 +32,9 @@ interface SessionState {
   personalCoherence: number
   heartRate: number | null
   audioElementRef: HTMLAudioElement | null
-  setCurrentSession: (session: SessionInfo | null) => void
+  setCurrentSession: (
+    session: SessionInfo | null | ((prev: SessionInfo | null) => SessionInfo | null)
+  ) => void
   setIsConnected: (connected: boolean) => void
   setPersonalCoherence: (coherence: number) => void
   setHeartRate: (rate: number | null) => void
@@ -46,7 +48,11 @@ export const useSessionStore = create<SessionState>((set) => ({
   personalCoherence: 0,
   heartRate: null,
   audioElementRef: null,
-  setCurrentSession: (session) => set({ currentSession: session }),
+  setCurrentSession: (session) =>
+    set((state) => ({
+      currentSession:
+        typeof session === 'function' ? session(state.currentSession) : session,
+    })),
   setIsConnected: (connected) => set({ isConnected: connected }),
   setPersonalCoherence: (coherence) => set({ personalCoherence: coherence }),
   setHeartRate: (rate) => set({ heartRate: rate }),
