@@ -2,7 +2,7 @@ services:
   # Backend Service - Handles API and WebSocket
   - type: web
     name: sync-backend
-    env: node
+    runtime: node
     rootDir: backend
     buildCommand: npm install && npm run build
     startCommand: npm start
@@ -26,7 +26,7 @@ services:
   # Frontend Service - Next.js App
   - type: web
     name: sync-frontend
-    env: node
+    runtime: node
     rootDir: web
     buildCommand: npm install && npm run build
     startCommand: npm start

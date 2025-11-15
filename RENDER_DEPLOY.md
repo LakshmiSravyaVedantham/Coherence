@@ -91,17 +91,27 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 
 ## Troubleshooting
 
+### Docker Error: "failed to read dockerfile"
+
+**If you see this error:**
+- Render is trying to use Docker instead of Node.js
+- **Solution**: Make sure `render.yaml` uses `runtime: node` (not `env: node`)
+- Or manually set service to use "Node" environment in Render dashboard
+- Go to service → Settings → Environment → Select "Node"
+
 ### Build Failures
 
 **Backend build fails:**
 - Check Node.js version (should be 18+)
 - Ensure all dependencies are in `package.json`
 - Check build logs for specific errors
+- Verify `rootDir: backend` is correct
 
 **Frontend build fails:**
 - Verify Next.js version compatibility
 - Check for missing environment variables
 - Review build logs
+- Verify `rootDir: web` is correct
 
 ### WebSocket Connection Issues
 
