@@ -1,5 +1,6 @@
 import {
   SessionState,
+  SessionParticipant,
   GroupCoherenceMetrics,
   CoherenceScore,
 } from '@sync/shared';
@@ -31,7 +32,7 @@ export function calculateGroupCoherence(
 
   // Calculate average coherence
   const totalCoherence = participants.reduce(
-    (sum, p) => sum + p.currentCoherence,
+    (sum: number, p: SessionParticipant) => sum + p.currentCoherence,
     0
   );
   const averageCoherence = (totalCoherence / participantCount) as CoherenceScore;

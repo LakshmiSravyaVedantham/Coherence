@@ -1,15 +1,15 @@
-import { Express } from 'express';
+import { Express, Request, Response } from 'express';
 import { sessionManager } from '../session/sessionManager';
 import { setupResearchRoutes } from './research';
 
 export function setupRoutes(app: Express): void {
   // Health check
-  app.get('/health', (req, res) => {
+  app.get('/health', (req: Request, res: Response) => {
     res.json({ status: 'ok', timestamp: Date.now() });
   });
 
   // Get current session
-  app.get('/api/sessions/current', (req, res) => {
+  app.get('/api/sessions/current', (req: Request, res: Response) => {
     const session = sessionManager.getCurrentSession();
     if (!session) {
       return res.status(404).json({ error: 'No active session found' });
@@ -28,7 +28,7 @@ export function setupRoutes(app: Express): void {
   });
 
   // Get session details
-  app.get('/api/sessions/:sessionId', (req, res) => {
+  app.get('/api/sessions/:sessionId', (req: Request, res: Response) => {
     const { sessionId } = req.params;
     const session = sessionManager.getSession(sessionId);
 
@@ -48,7 +48,7 @@ export function setupRoutes(app: Express): void {
   });
 
   // Get all active sessions
-  app.get('/api/sessions', (req, res) => {
+  app.get('/api/sessions', (req: Request, res: Response) => {
     const sessions = sessionManager.getAllActiveSessions();
     res.json(
       sessions.map((s) => ({
