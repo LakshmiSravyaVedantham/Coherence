@@ -6,7 +6,7 @@ services:
     rootDir: backend
     buildCommand: npm install && npm run build
     startCommand: npm start
-    plan: starter
+    plan: free  # Free tier (spins down after 15 min inactivity)
     dockerfilePath: ""  # Explicitly disable Docker
     envVars:
       - key: NODE_ENV
@@ -31,7 +31,7 @@ services:
     rootDir: web
     buildCommand: npm install && npm run build
     startCommand: npm start
-    plan: starter
+    plan: free  # Free tier (spins down after 15 min inactivity)
     dockerfilePath: ""  # Explicitly disable Docker
     envVars:
       - key: NODE_ENV

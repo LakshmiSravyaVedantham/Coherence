@@ -4,9 +4,11 @@ Deploy both frontend and backend in 3 easy steps!
 
 ## Prerequisites
 
-- ✅ Render account: [render.com](https://render.com) (free tier works!)
+- ✅ Render account: [render.com](https://render.com) - **No payment required for free tier!**
 - ✅ GitHub repo: Your code on GitHub
 - ✅ Supabase project: Already set up
+
+**Note**: The `render.yaml` is configured for **free tier** - no payment information needed!
 
 ## 🚀 3-Step Deployment
 
@@ -151,11 +153,18 @@ Render free tier:
 - Perfect for development/testing
 - Upgrade to paid plan for always-on services
 
-## Cost
+## Cost & Free Tier
 
-- **Free Tier**: Both services can run on free tier
-- **Starter Plan**: $7/month per service (always-on)
-- **Recommended**: Start with free tier, upgrade if needed
+- **Free Tier**: ✅ Both services configured for free tier (no payment needed!)
+- **Free Tier Limitations**:
+  - Services spin down after 15 minutes of inactivity
+  - First request after spin-down takes ~30 seconds to wake up
+  - Perfect for development, testing, and low-traffic apps
+- **Paid Plans**: 
+  - Starter: $7/month per service (always-on, no spin-down)
+  - Upgrade only if you need always-on services
+
+**Current Configuration**: Both services use `plan: free` - no payment required!
 
 ## Support
 
