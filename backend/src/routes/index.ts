@@ -3,6 +3,25 @@ import { sessionManager } from '../session/sessionManager';
 import { setupResearchRoutes } from './research';
 
 export function setupRoutes(app: Express): void {
+  // Root route - API information
+  app.get('/', (req: Request, res: Response) => {
+    res.json({
+      name: 'Sync - Collective Coherence Platform API',
+      version: '1.0.0',
+      status: 'running',
+      endpoints: {
+        health: '/health',
+        currentSession: '/api/sessions/current',
+        allSessions: '/api/sessions',
+        sessionById: '/api/sessions/:sessionId',
+        research: '/api/research/stats',
+        researchExport: '/api/research/export',
+      },
+      websocket: 'Connect via Socket.io for real-time session updates',
+      timestamp: new Date().toISOString(),
+    });
+  });
+
   // Health check
   app.get('/health', (req: Request, res: Response) => {
     res.json({ status: 'ok', timestamp: Date.now() });

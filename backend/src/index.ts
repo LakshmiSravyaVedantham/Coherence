@@ -39,12 +39,7 @@ if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
   }
 }
 
-// Health check endpoint for deployment platforms
-app.get('/health', (req: express.Request, res: express.Response) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() })
-})
-
-// Routes
+// Routes (includes health check and all API endpoints)
 setupRoutes(app);
 
 // Socket.io handlers
